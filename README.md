@@ -28,7 +28,7 @@ requirements. It is a complete solution for web data management. Create amazing 
 ## Installation
 
 ```bash
-npm install j-excel
+npm install jstable-editor
 ```
 
 [Download ZIP](https://github.com/vuongtaquoc/jexcel/archive/master.zip)
