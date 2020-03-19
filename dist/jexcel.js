@@ -1,6 +1,6 @@
 
 /**
- * jExcel v3.9.1
+ * jExcel v3.7.0
  *
  * Author: Paul Hodel <paul.hodel@gmail.com>
  * Website: https://bossanova.uk/jexcel/
@@ -271,9 +271,9 @@ var jexcel = (function(el, options) {
         console.error('JEXCEL: The lazyloading only works when tableOverflow = yes or fullscreen = yes');
         obj.options.lazyLoading = false;
     }
-    
+
     /**
-     * Activate/Disable fullscreen 
+     * Activate/Disable fullscreen
      * use programmatically : table.fullscreen(); or table.fullscreen(true); or table.fullscreen(false);
      * @Param {boolean} activate
      */
@@ -293,12 +293,12 @@ var jexcel = (function(el, options) {
             } else {
                 el.classList.remove('fullscreen');
             }
-        } 
+        }
     }
 
     /**
      * Prepare the jexcel table
-     * 
+     *
      * @Param config
      */
     obj.prepareTable = function() {
@@ -636,7 +636,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Refresh the data
-     * 
+     *
      * @return void
      */
     obj.refresh = function() {
@@ -668,7 +668,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Set data
-     * 
+     *
      * @param array data In case no data is sent, default is reloaded
      * @return void
      */
@@ -800,11 +800,11 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the whole table data
-     * 
+     *
      * @param bool get highlighted cells only
      * @return array data
      */
-        obj.getData = function(highlighted, dataOnly) {
+    obj.getData = function(highlighted, dataOnly) {
         // Control vars
         var dataset = [];
         var px = 0;
@@ -845,7 +845,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the whole table data
-     * 
+     *
      * @param integer row number
      * @return string value
      */
@@ -1102,6 +1102,9 @@ var jexcel = (function(el, options) {
             if (! nestedInformation[i].title) {
                 nestedInformation[i].title = '';
             }
+            if (! nestedInformation[i].rowspan) {
+                nestedInformation[i].rowspan = 1;
+            }
 
             // Number of columns
             var numberOfColumns = nestedInformation[i].colspan;
@@ -1122,6 +1125,7 @@ var jexcel = (function(el, options) {
             td.setAttribute('data-column', column.join(','));
             td.setAttribute('colspan', nestedInformation[i].colspan);
             td.setAttribute('align', nestedInformation[i].align);
+            td.setAttribute('rowspan', nestedInformation[i].rowspan);
             td.innerHTML = nestedInformation[i].title;
             tr.appendChild(td);
         }
@@ -1461,7 +1465,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Open the editor
-     * 
+     *
      * @param object cell
      * @return void
      */
@@ -1624,7 +1628,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Close the editor and save the information
-     * 
+     *
      * @param object cell
      * @param boolean save
      * @return void
@@ -1708,7 +1712,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the cell object
-     * 
+     *
      * @param object cell
      * @return string value
      */
@@ -1723,7 +1727,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the cell object from coords
-     * 
+     *
      * @param object cell
      * @return string value
      */
@@ -1733,7 +1737,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get label
-     * 
+     *
      * @param object cell
      * @return string value
      */
@@ -1748,7 +1752,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get labelfrom coords
-     * 
+     *
      * @param object cell
      * @return string value
      */
@@ -1758,7 +1762,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the value from a cell
-     * 
+     *
      * @param object cell
      * @return string value
      */
@@ -1789,7 +1793,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the value from a coords
-     * 
+     *
      * @param int x
      * @param int y
      * @return string value
@@ -1812,7 +1816,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Set a cell value
-     * 
+     *
      * @param mixed cell destination cell
      * @param string value value
      * @return void
@@ -1885,7 +1889,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Set a cell value based on coordinates
-     * 
+     *
      * @param int x destination cell
      * @param int y destination cell
      * @param string value
@@ -1943,7 +1947,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Update cell content
-     * 
+     *
      * @param object cell
      * @return void
      */
@@ -2514,7 +2518,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Remove copy selection
-     * 
+     *
      * @return void
      */
     obj.removeCopySelection = function() {
@@ -2532,7 +2536,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Update copy selection
-     * 
+     *
      * @param int x, y
      * @return void
      */
@@ -2590,7 +2594,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Update corner position
-     * 
+     *
      * @return void
      */
     obj.updateCornerPosition = function() {
@@ -2681,7 +2685,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the column width
-     * 
+     *
      * @param int column column number (first column is: 0)
      * @return int current width
      */
@@ -2706,7 +2710,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Set the column width
-     * 
+     *
      * @param int column number (first column is: 0)
      * @param int new column width
      * @param int old column width
@@ -2749,7 +2753,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Set the row height
-     * 
+     *
      * @param row - row number (first row is: 0)
      * @param height - new row height
      * @param oldHeight - old row height
@@ -2805,7 +2809,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the row height
-     * 
+     *
      * @param row - row number (first row is: 0)
      * @return height - current row height
      */
@@ -2833,7 +2837,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the column title
-     * 
+     *
      * @param column - column number (first column is: 0)
      * @param title - new column title
      */
@@ -2843,7 +2847,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Set the column title
-     * 
+     *
      * @param column - column number (first column is: 0)
      * @param title - new column title
      */
@@ -2881,7 +2885,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get the headers
-     * 
+     *
      * @param asArray
      * @return mixed
      */
@@ -2897,7 +2901,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get meta information from cell(s)
-     * 
+     *
      * @return integer
      */
     obj.getMeta = function(cell, key) {
@@ -2914,7 +2918,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Set meta information to cell(s)
-     * 
+     *
      * @return integer
      */
     obj.setMeta = function(o, k, v) {
@@ -2952,7 +2956,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Update meta information
-     * 
+     *
      * @return integer
      */
     obj.updateMeta = function(affectedCells) {
@@ -2973,7 +2977,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get style information from cell(s)
-     * 
+     *
      * @return integer
      */
     obj.getStyle = function(cell, key) {
@@ -3024,7 +3028,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Set meta information to cell(s)
-     * 
+     *
      * @return integer
      */
     obj.setStyle = function(o, k, v, force, ignoreHistoryAndEvents) {
@@ -3129,15 +3133,15 @@ var jexcel = (function(el, options) {
      */
     obj.getComments = function(cell, withAuthor) {
         if (cell) {
-            if (typeof(cell) == 'string') {
-              var cell = jexcel.getIdFromColumnName(cell, true);
-            }
+        if (typeof(cell) == 'string') {
+            var cell = jexcel.getIdFromColumnName(cell, true);
+        }
 
-            if (withAuthor) {
-                return [obj.records[cell[1]][cell[0]].getAttribute('title'), obj.records[cell[1]][cell[0]].getAttribute('author')];
-            } else {
-                return obj.records[cell[1]][cell[0]].getAttribute('title') || '';
-            }
+        if (withAuthor) {
+            return [obj.records[cell[1]][cell[0]].getAttribute('title'), obj.records[cell[1]][cell[0]].getAttribute('author')];
+        } else {
+            return obj.records[cell[1]][cell[0]].getAttribute('title') || '';
+        }
         } else {
             var data = {};
             for (var j = 0; j < obj.options.data.length; j++) {
@@ -3346,7 +3350,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Move row
-     * 
+     *
      * @return void
      */
     obj.moveRow = function(o, d, ignoreDom) {
@@ -3420,7 +3424,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Insert a new row
-     * 
+     *
      * @param mixed - number of blank lines to be insert or a single array with the data of the new row
      * @param rowNumber
      * @param insertBefore
@@ -3561,7 +3565,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Delete a row by number
-     * 
+     *
      * @param integer rowNumber - row number to be excluded
      * @param integer numOfRows - number of lines
      * @return void
@@ -3689,7 +3693,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Move column
-     * 
+     *
      * @return void
      */
     obj.moveColumn = function(o, d) {
@@ -3758,7 +3762,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Insert a new column
-     * 
+     *
      * @param mixed - num of columns to be added or data to be added in one single column
      * @param int columnNumber - number of columns to be created
      * @param bool insertBefore
@@ -3929,7 +3933,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Delete a column by number
-     * 
+     *
      * @param integer columnNumber - reference column to be excluded
      * @param integer numOfColumns - number of columns to be excluded from the reference column
      * @return void
@@ -4078,7 +4082,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get seleted rows numbers
-     * 
+     *
      * @return array
      */
     obj.getSelectedRows = function(asIds) {
@@ -4099,7 +4103,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get seleted column numbers
-     * 
+     *
      * @return array
      */
     obj.getSelectedColumns = function() {
@@ -4116,7 +4120,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Get highlighted
-     * 
+     *
      * @return array
      */
     obj.getHighlighted = function() {
@@ -4125,7 +4129,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Update cell references
-     * 
+     *
      * @return void
      */
     obj.updateTableReferences = function() {
@@ -5065,7 +5069,7 @@ var jexcel = (function(el, options) {
         // pageNumber
         if (pageNumber == null || pageNumber == -1) {
             // Last page
-            pageNumber = Math.ceil(results.length / quantityPerPage); 
+            pageNumber = Math.ceil(results.length / quantityPerPage);
         }
 
         var startRow = (pageNumber * quantityPerPage);
@@ -5320,7 +5324,7 @@ var jexcel = (function(el, options) {
         // pageNumber
         if (pageNumber == null || pageNumber == -1) {
             // Last page
-            pageNumber = Math.ceil(results.length / quantityPerPage); 
+            pageNumber = Math.ceil(results.length / quantityPerPage);
         }
 
         // Page number
@@ -5447,7 +5451,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Download CSV table
-     * 
+     *
      * @return null
      */
     obj.download = function(includeHeaders) {
@@ -5460,10 +5464,8 @@ var jexcel = (function(el, options) {
                 data += obj.getHeaders();
                 data += "\r\n";
             }
-
             // Get data
             data += obj.copy(false, obj.options.csvDelimiter, true);
-
             // Download element
             var blob = new Blob(["\uFEFF"+data], {type: 'text/csv;charset=utf-8;'});
 
@@ -5485,7 +5487,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Initializes a new history record for undo/redo
-     * 
+     *
      * @return null
      */
     obj.setHistory = function(changes) {
@@ -5503,7 +5505,7 @@ var jexcel = (function(el, options) {
 
     /**
      * Copy method
-     * 
+     *
      * @param bool highlighted - Get only highlighted cells
      * @param delimiter - \t default to keep compatibility with excel
      * @return string value
@@ -5597,7 +5599,7 @@ var jexcel = (function(el, options) {
 
     /**
      * jExcel paste method
-     * 
+     *
      * @param integer row number
      * @return string value
      */
@@ -6024,7 +6026,7 @@ var jexcel = (function(el, options) {
             arr[row][col] = arr[row][col] || '';
 
             // If the current character is a quotation mark, and we're inside a quoted field, and the next character is also a quotation mark, add a quotation mark to the current column and skip the next character
-            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }  
+            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
 
             // If it's just one quotation mark, begin/end quoted field
             if (cc == '"') { quote = !quote; continue; }
@@ -7318,6 +7320,7 @@ jexcel.touchEndControls = function(e) {
         jexcel.tmpElement = null;
     }
 }
+
 
 /**
  * Jexcel extensions

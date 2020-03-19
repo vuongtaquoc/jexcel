@@ -1,10 +1,10 @@
 {
-    "name": "j-excel",
+    "name": "jstable-editor",
     "title": "The Javascript Spreadsheet",
     "description": "jExcel is a lightweight, vanilla javascript plugin to create amazing web-based interactive tables and spreadsheets compatible with Excel, Google Spreadsheets and any other spreadsheet software.",
     "repository": {
         "type": "git",
-        "url": "https://github.com/paulhodel/jexcel.git"
+        "url": "https://github.com/vuongtaquoc/jexcel.git"
     },
     "author": {
         "name": "Vuong Ta Quoc <tqv.itvn@gmail.com>"
