@@ -27,9 +27,11 @@ requirements. It is a complete solution for web data management. Create amazing 
 
 ## Installation
 
-% npm install jexcel
+```bash
+npm install j-excel
+```
 
-[Download ZIP](https://github.com/paulhodel/jexcel/archive/master.zip)
+[Download ZIP](https://github.com/vuongtaquoc/jexcel/archive/master.zip)
 
 ### Basic demo
 
@@ -210,7 +212,7 @@ We are glad to bring you the latest jQuery plugin version, with the following im
 - [jExcel CE v2 - jQuery Plugin](https://bossanova.uk/jexcel/v2)
 
 ## Community
-- [GitHub](https://github.com/paulhodel/jexcel/issues)
+- [GitHub](https://github.com/vuongtaquoc/jexcel/issues)
 
 ## Compilation
 

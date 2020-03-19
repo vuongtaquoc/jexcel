@@ -1,5 +1,5 @@
 {
-    "name": "jexcel",
+    "name": "j-excel",
     "title": "The Javascript Spreadsheet",
     "description": "jExcel is a lightweight, vanilla javascript plugin to create amazing web-based interactive tables and spreadsheets compatible with Excel, Google Spreadsheets and any other spreadsheet software.",
     "repository": {
@@ -7,20 +7,18 @@
         "url": "https://github.com/paulhodel/jexcel.git"
     },
     "author": {
-        "name": "Paul Hodel <paul.hodel@gmail.com>",
-        "url": "https://www.linkedin.com/in/paulhodel"
+        "name": "Vuong Ta Quoc <tqv.itvn@gmail.com>"
     },
     "maintainers": [
         {
-            "name": "Paul Hodel",
-            "email": "paul.hodel@gmail.com",
-            "url": "http://paulhodel.com"
+            "name": "Vuong Ta Quoc",
+            "email": "tqv.itvn@gmail.com"
         }
     ],
     "licenses": [
         {
             "type": "MIT",
-            "url": "https://github.com/paulhodel/jexcel/blob/master/LICENSE"
+            "url": "https://github.com/vuongtaquoc/jexcel/blob/master/LICENSE"
         }
     ],
     "keywords": [
@@ -39,8 +37,8 @@
     },
     "main": "dist/jexcel.js",
     "version": "3.9.1",
-    "bugs": "https://github.com/paulhodel/jexcel/issues",
-    "homepage": "https://github.com/paulhodel/jexcel",
+    "bugs": "https://github.com/vuongtaquoc/jexcel/issues",
+    "homepage": "https://github.com/vuongtaquoc/jexcel",
     "docs": "https://bossanova.uk/jexcel",
-    "download": "https://github.com/paulhodel/jexcel/archive/master.zip"
+    "download": "https://github.com/vuongtaquoc/jexcel/archive/master.zip"
 }

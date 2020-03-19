@@ -1,13 +1,17 @@
 <?php
 
+$files = ['jexcel.core.js', 'jexcel.extensions.js', 'jexcel.formulas.js'];
+
 if ($handle = opendir('js')) {
     $js = '';
     $css = '';
-    while (false !== ($entry = readdir($handle))) {
+
+    foreach ($files as $entry) {
         if ($entry != "." && $entry != ".." && (! isset($modules) || in_array(substr($entry, 0, strpos($entry, '.')), $modules))) {
             $js .= file_get_contents('js/'.$entry) . "\r\n\r\n";
         }
     }
+
     closedir($handle);
 
     $js = "
