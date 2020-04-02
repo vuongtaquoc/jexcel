@@ -1,9 +1,9 @@
 
 /**
- * jExcel v3.7.0
+ * jExcel v3.10.1
  *
- * Author: Paul Hodel <paul.hodel@gmail.com>
- * Website: https://bossanova.uk/jexcel/
+ * Author: Vuong Ta Quoc <tqv.itvn@gmail.com>
+ * Git: https://github.com/vuongtaquoc/
  * Description: Create amazing web based spreadsheets.
  *
  * This software is distribute under MIT License
@@ -14,10 +14,10 @@
     require('jsuites/dist/jsuites.css');
 }
 
-;(function (global, factory) {
+;(function (window, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
-    global.jexcel = factory();
+    window.jexcel = factory();
 }(this, (function () {
 
     'use strict';
@@ -104,6 +104,8 @@ var jexcel = (function(el, options) {
         csvHeaders:true,
         // Delimiters
         csvDelimiter:',',
+        // Freeze columns
+        freezeColumns: null,
         // Disable corner selection
         selectionCopy:true,
         // Merged cells
@@ -474,10 +476,14 @@ var jexcel = (function(el, options) {
             if (obj.options.nestedHeaders[0] && obj.options.nestedHeaders[0][0]) {
                 for (var j = 0; j < obj.options.nestedHeaders.length; j++) {
                     obj.thead.appendChild(obj.createNestedHeader(obj.options.nestedHeaders[j]));
+                    obj.thead.classList.add('jexcel_nested_thead');
                 }
             } else {
                 obj.thead.appendChild(obj.createNestedHeader(obj.options.nestedHeaders));
+                obj.thead.classList.add('jexcel_nested_thead');
             }
+
+            obj.updateNestedHeaderPosition();
         }
 
         // Row
@@ -534,22 +540,6 @@ var jexcel = (function(el, options) {
             }
         });
 
-        // Powered by jExcel
-        var ads = document.createElement('a');
-        ads.setAttribute('href', 'https://bossanova.uk/jexcel/');
-        obj.ads = document.createElement('div');
-        obj.ads.className = 'jexcel_about';
-        if (typeof(sessionStorage) !== "undefined" && ! sessionStorage.getItem('jexcel')) {
-            sessionStorage.setItem('jexcel', true);
-            var img = document.createElement('img');
-            img.src = '//bossanova.uk/jexcel/logo.png';
-            ads.appendChild(img);
-        }
-        var span = document.createElement('span');
-        span.innerHTML = 'Jexcel spreadsheet';
-        ads.appendChild(span);
-        obj.ads.appendChild(ads);
-
         // Create table container TODO: frozen columns
         var container = document.createElement('div');
         container.classList.add('jexcel_table');
@@ -581,7 +571,6 @@ var jexcel = (function(el, options) {
         el.appendChild(obj.content);
         el.appendChild(obj.pagination);
         el.appendChild(obj.contextMenu);
-        el.appendChild(obj.ads);
         el.classList.add('jexcel_container');
 
         // Create toolbar
@@ -632,6 +621,75 @@ var jexcel = (function(el, options) {
         if (obj.options.style) {
             obj.setStyle(obj.options.style, null, null, 1, 1);
         }
+    }
+
+    obj.freezeColumn = function() {
+        const freezeColumnIndex = obj.options.freezeColumns;
+
+        if (freezeColumnIndex === null) {
+            return;
+        }
+
+        // var nestedHeader = obj.thead.rows[0] ? obj.thead.rows[0].cells[freezeColumnIndex + 1] : null;
+        var nestedCells = obj.thead.rows[0] ? obj.thead.rows[0].cells : null;
+
+        console.log(obj.firstColumnPosition, obj.content.scrollLeft)
+        if (obj.firstColumnPosition <= obj.content.scrollLeft) {
+            var left = obj.content.scrollLeft - obj.firstColumnPosition;
+
+            obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
+
+            // if (freezeColumnIndex > 0) {
+            //     obj.headers[freezeColumnIndex - 1].classList.add('jexcel_freezed');
+            // }
+
+            if (nestedCells) {
+                nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
+
+                // if (freezeColumnIndex > 0) {
+                //     nestedCells[freezeColumnIndex].classList.add('jexcel_freezed');
+                // }
+            }
+
+            for (var i = 0; i < obj.records.length; i++) {
+                var col = obj.records[i][freezeColumnIndex];
+
+                col.classList.add('jexcel_freezed');
+                col.style.left = left - 1 + 'px';
+
+                // if (freezeColumnIndex > 0) {
+                //     obj.records[i][freezeColumnIndex - 1].classList.add('jexcel_freezed');
+                //     obj.records[i][freezeColumnIndex - 1].style.left = left - 1 + 'px';
+                // }
+            }
+        } else {
+            obj.headers[freezeColumnIndex].classList.remove('jexcel_freezed');
+
+            // if (freezeColumnIndex > 0) {
+            //     obj.headers[freezeColumnIndex - 1].classList.remove('jexcel_freezed');
+            // }
+
+            if (nestedCells) {
+                nestedCells[freezeColumnIndex + 1].classList.remove('jexcel_freezed');
+
+                // if (freezeColumnIndex > 0) {
+                //     nestedCells[freezeColumnIndex].classList.remove('jexcel_freezed');
+                // }
+            }
+
+            for (var i = 0; i < obj.records.length; i++) {
+                var col = obj.records[i][freezeColumnIndex];
+
+                col.classList.remove('jexcel_freezed');
+                col.style.left = '0px';
+
+                // if (freezeColumnIndex > 0) {
+                //     obj.records[i][freezeColumnIndex - 1].classList.remove('jexcel_freezed');
+                //     obj.records[i][freezeColumnIndex - 1].style.left = '0px';
+                // }
+            }
+        }
+
     }
 
     /**
@@ -1127,10 +1185,27 @@ var jexcel = (function(el, options) {
             td.setAttribute('align', nestedInformation[i].align);
             td.setAttribute('rowspan', nestedInformation[i].rowspan);
             td.innerHTML = nestedInformation[i].title;
+
             tr.appendChild(td);
         }
 
         return tr;
+    }
+
+    obj.updateNestedHeaderPosition = function() {
+        setTimeout(() => {
+            var rows = obj.thead.childNodes;
+
+            for (var i = 0; i < rows.length; i++) {
+                var cols = rows[i].childNodes;
+
+                for (var j = 0; j < cols.length; j++) {
+                    var col = cols[j];
+
+                    col.style.top = col.offsetTop - 1 + 'px';
+                }
+            }
+        }, 0);
     }
 
     /**
@@ -5504,6 +5579,40 @@ var jexcel = (function(el, options) {
     }
 
     /**
+     * Set cell read only
+     */
+    obj.setReadonly = function(rowIndex, columnIndex) {
+        for (var j = 0; j < obj.rows.length; j++) {
+            for (var i = 0; i < obj.headers.length; i++) {
+                var cell = obj.records[j][i];
+
+                if (rowIndex !== undefined && columnIndex !== undefined && rowIndex === j && columnIndex === i) {
+                    cell.classList.add('readonly');
+                } else if (rowIndex !== undefined && columnIndex === undefined && rowIndex === j) {
+                    cell.classList.add('readonly');
+                }
+            }
+        }
+    }
+
+    obj.setReadonlyRowsTitle = function(rowIndexes, colIngnoreIndexes) {
+        for (var j = 0; j < obj.rows.length; j++) {
+            for (var i = 0; i < obj.headers.length; i++) {
+                var cell = obj.records[j][i];
+
+                if (rowIndexes.indexOf(j) > -1) {
+                    cell.classList.add('readonly');
+                    cell.classList.add('row-title-readonly');
+
+                    if (colIngnoreIndexes.indexOf(i) === -1) {
+                        cell.innerHTML = '';
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Copy method
      *
      * @param bool highlighted - Get only highlighted cells
@@ -6362,10 +6471,17 @@ var jexcel = (function(el, options) {
 
     el.addEventListener("DOMMouseScroll", obj.scrollControls);
     el.addEventListener("mousewheel", obj.scrollControls);
-
     el.jexcel = obj;
 
     obj.init();
+
+    setTimeout(() => {
+        var firstColumn = obj.headers[obj.options.freezeColumns];
+
+        obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft : 0;
+    }, 0);
+
+    obj.content.addEventListener('scroll', obj.freezeColumn);
 
     return obj;
 });
@@ -6376,6 +6492,7 @@ jexcel.timeControlLoading = null;
 
 jexcel.destroy = function(element, destroyEventHandlers) {
     if (element.jexcel) {
+        element.jexcel.content.removeEventListener('scroll', obj.freezeColumn);
         element.removeEventListener("DOMMouseScroll", element.jexcel.scrollControls);
         element.removeEventListener("mousewheel", element.jexcel.scrollControls);
         element.jexcel = null;
@@ -6476,6 +6593,7 @@ jexcel.keyDownControls = function(e) {
                 jexcel.current.down(e.shiftKey, e.ctrlKey);
                 e.preventDefault();
             } else if (e.which == 36) {
+                jexcel.current.content.scrollLeft = 0;
                 jexcel.current.first(e.shiftKey, e.ctrlKey);
                 e.preventDefault();
             } else if (e.which == 35) {

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Freeze Column</title>
+  <link rel="stylesheet" href="https://bossanova.uk/jsuites/v2/jsuites.css" type="text/css" />
+  <link rel="stylesheet" href="/dist/jexcel.css">
+</head>
+<body>
+  <div id="spreadsheet"></div>
+
+  <script src="https://bossanova.uk/jsuites/v2/jsuites.js"></script>
+  <script src="/dist/jexcel.js"></script>
+  <script>
+    jexcel(document.getElementById('spreadsheet'), {
+      data: null,
+      minDimensions: [20,500],
+      tableOverflow: true,
+      tableWidth: '600px',
+      freezeColumns: 1,
+      nestedHeaders:[
+        [
+          {
+                title: 'hello',
+                rowspan: '2',
+            },
+          {
+                title: '323254',
+                rowspan: '2',
+            },
+            {
+                title: 'Supermarket information',
+                colspan: '3',
+            },
+        ],
+        [
+            {
+                title: 'Location',
+                colspan: '1',
+            },
+            {
+                title: ' Other Information',
+                colspan: '2'
+            }
+        ],
+    ],
+    });
+  </script>
+</body>
+</html>

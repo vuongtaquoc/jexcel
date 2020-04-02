@@ -36,9 +36,12 @@
         "jsuites": "^2.7.1"
     },
     "main": "dist/jexcel.js",
-    "version": "3.9.1",
+    "version": "3.10.4",
     "bugs": "https://github.com/vuongtaquoc/jexcel/issues",
     "homepage": "https://github.com/vuongtaquoc/jexcel",
     "docs": "https://bossanova.uk/jexcel",
-    "download": "https://github.com/vuongtaquoc/jexcel/archive/master.zip"
+    "download": "https://github.com/vuongtaquoc/jexcel/archive/master.zip",
+    "devDependencies": {
+        "express": "4.17.1"
+    }
 }

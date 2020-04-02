@@ -40,7 +40,7 @@
 }
 
 @supports (-moz-appearance:none) {
-    .jexcel_content { padding-right:10px; } 
+    .jexcel_content { padding-right:10px; }
 }
 
 .jexcel_content::-webkit-scrollbar {
@@ -51,9 +51,9 @@
 .jexcel_content::-webkit-scrollbar-track {
     background: #eee;
 }
- 
+
 .jexcel_content::-webkit-scrollbar-thumb {
-  background: #666; 
+  background: #666;
 }
 
 .jexcel {
@@ -84,6 +84,14 @@
     overflow: hidden;
     position: -webkit-sticky;
     position: sticky;
+    top: 0;
+    z-index:20;
+}
+
+.jexcel > thead.jexcel_nested_thead {
+    position: -webkit-sticky;
+    position: sticky;
+    overflow: hidden;
     top: 0;
     z-index:20;
 }
@@ -617,7 +625,7 @@
     display:none;
 }
 
-.jexcel_toolbar i.jexcel_toolbar_item 
+.jexcel_toolbar i.jexcel_toolbar_item
 {
     width:24px;
     height:24px;
@@ -626,12 +634,12 @@
     display:inline-block;
 }
 
-.jexcel_toolbar i.jexcel_toolbar_item:hover 
+.jexcel_toolbar i.jexcel_toolbar_item:hover
 {
     background-color:#ddd;
 }
 
-.jexcel_toolbar select.jexcel_toolbar_item 
+.jexcel_toolbar select.jexcel_toolbar_item
 {
     margin-left:2px;
     margin-right:2px;
@@ -678,8 +686,23 @@
 }
 
 .jexcel_hidden_index > tbody > tr > td:first-child,
-.jexcel_hidden_index > thead > tr > td:first-child, 
+.jexcel_hidden_index > thead > tr > td:first-child,
 .jexcel_hidden_index > colgroup > col:first-child
 {
     display:none;
+}
+
+.jexcel thead .jexcel_freezed {
+    left: 0px;
+    z-index: 30 !important;
+    box-shadow: 2px 0px 2px 0.2px #ccc !important;
+    -webkit-box-shadow: 2px 0px 2px 0.2px #ccc !important;
+    -moz-box-shadow: 2px 0px 2px 0.2px #ccc !important;
+}
+.jexcel tbody .jexcel_freezed {
+    position: relative;
+    background-color: #fff;
+    box-shadow: 1px 1px 1px 1px #ccc !important;
+    -webkit-box-shadow: 2px 4px 4px 0.1px #ccc !important;
+    -moz-box-shadow: 2px 4px 4px 0.1px #ccc !important;
 }

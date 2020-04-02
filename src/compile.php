@@ -16,10 +16,10 @@ if ($handle = opendir('js')) {
 
     $js = "
 /**
- * jExcel v3.7.0
+ * jExcel v3.10.1
  *
- * Author: Paul Hodel <paul.hodel@gmail.com>
- * Website: https://bossanova.uk/jexcel/
+ * Author: Vuong Ta Quoc <tqv.itvn@gmail.com>
+ * Git: https://github.com/vuongtaquoc/
  * Description: Create amazing web based spreadsheets.
  *
  * This software is distribute under MIT License
@@ -30,10 +30,10 @@ if ($handle = opendir('js')) {
     require('jsuites/dist/jsuites.css');
 }
 
-;(function (global, factory) {
+;(function (window, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
-    global.jexcel = factory();
+    window.jexcel = factory();
 }(this, (function () {
 
     'use strict';
