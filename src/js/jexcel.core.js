@@ -81,7 +81,7 @@ var jexcel = (function(el, options) {
         // Delimiters
         csvDelimiter:',',
         // Freeze columns
-        freezeColumns: null,
+        freezeColumns: 1,
         // Disable corner selection
         selectionCopy:true,
         // Merged cells
@@ -600,71 +600,11 @@ var jexcel = (function(el, options) {
     }
 
     obj.freezeColumn = function() {
-        const freezeColumnIndex = obj.options.freezeColumns;
-
-        if (freezeColumnIndex === null) {
-            return;
-        }
-
-        // var nestedHeader = obj.thead.rows[0] ? obj.thead.rows[0].cells[freezeColumnIndex + 1] : null;
-        var nestedCells = obj.thead.rows[0] ? obj.thead.rows[0].cells : null;
-
-        if (obj.firstColumnPosition <= obj.content.scrollLeft) {
-            var left = obj.content.scrollLeft - obj.firstColumnPosition;
-
-            obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
-
-            // if (freezeColumnIndex > 0) {
-            //     obj.headers[freezeColumnIndex - 1].classList.add('jexcel_freezed');
-            // }
-
-            if (nestedCells) {
-                nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
-
-                // if (freezeColumnIndex > 0) {
-                //     nestedCells[freezeColumnIndex].classList.add('jexcel_freezed');
-                // }
-            }
-
-            for (var i = 0; i < obj.records.length; i++) {
-                var col = obj.records[i][freezeColumnIndex];
-
-                col.classList.add('jexcel_freezed');
-                col.style.left = left - 1 + 'px';
-
-                // if (freezeColumnIndex > 0) {
-                //     obj.records[i][freezeColumnIndex - 1].classList.add('jexcel_freezed');
-                //     obj.records[i][freezeColumnIndex - 1].style.left = left - 1 + 'px';
-                // }
-            }
+        if (obj.content.scrollLeft > 0) {
+            obj.content.classList.add('table-freeze-column');
         } else {
-            obj.headers[freezeColumnIndex].classList.remove('jexcel_freezed');
-
-            // if (freezeColumnIndex > 0) {
-            //     obj.headers[freezeColumnIndex - 1].classList.remove('jexcel_freezed');
-            // }
-
-            if (nestedCells) {
-                nestedCells[freezeColumnIndex + 1].classList.remove('jexcel_freezed');
-
-                // if (freezeColumnIndex > 0) {
-                //     nestedCells[freezeColumnIndex].classList.remove('jexcel_freezed');
-                // }
-            }
-
-            for (var i = 0; i < obj.records.length; i++) {
-                var col = obj.records[i][freezeColumnIndex];
-
-                col.classList.remove('jexcel_freezed');
-                col.style.left = '0px';
-
-                // if (freezeColumnIndex > 0) {
-                //     obj.records[i][freezeColumnIndex - 1].classList.remove('jexcel_freezed');
-                //     obj.records[i][freezeColumnIndex - 1].style.left = '0px';
-                // }
-            }
+            obj.content.classList.remove('table-freeze-column');
         }
-
     }
 
     /**
@@ -6450,10 +6390,65 @@ var jexcel = (function(el, options) {
 
     obj.init();
 
+    // freeze Column
     setTimeout(() => {
-        var firstColumn = obj.headers[obj.options.freezeColumns];
+        var freezeColumnIndex = obj.options.freezeColumns;
+        var nestedCells = obj.thead.rows[0] ? obj.thead.rows[0].cells : null;
 
-        obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft : 0;
+        if (freezeColumnIndex > 0) {
+            var firstColumn = obj.headers[freezeColumnIndex - 1];
+            var secondColumn = obj.headers[freezeColumnIndex];
+
+            obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft - 1 : 0;
+            obj.secondColumnPosition = secondColumn ? secondColumn.offsetLeft - 1 : 0;
+
+            // sticky header
+            obj.headers[freezeColumnIndex - 1].classList.add('jexcel_freezed');
+            obj.headers[freezeColumnIndex - 1].style.left = obj.firstColumnPosition + 'px';
+
+            obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
+            obj.headers[freezeColumnIndex].style.left = obj.secondColumnPosition + 'px';
+
+            if (nestedCells) {
+                nestedCells[freezeColumnIndex].classList.add('jexcel_freezed');
+                nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
+
+                nestedCells[freezeColumnIndex].style.left = obj.firstColumnPosition + 'px';
+                nestedCells[freezeColumnIndex + 1].style.left = obj.secondColumnPosition + 'px';
+            }
+        } else {
+            var firstColumn = obj.headers[freezeColumnIndex];
+
+            obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft - 1 : 0;
+            obj.secondColumnPosition = 0;
+
+            // sticky header
+            obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
+            obj.headers[freezeColumnIndex].style.left = obj.firstColumnPosition + 'px';
+
+            if (nestedCells) {
+                nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
+                nestedCells[freezeColumnIndex + 1].style.left = obj.firstColumnPosition + 'px';
+            }
+        }
+
+        for (var i = 0; i < obj.records.length; i++) {
+            if (freezeColumnIndex > 0) {
+                var firstColumn = obj.records[i][freezeColumnIndex - 1];
+                var secondColumn = obj.records[i][freezeColumnIndex];
+
+                firstColumn.classList.add('jexcel_freezed');
+                firstColumn.style.left = obj.firstColumnPosition + 'px';
+
+                secondColumn.classList.add('jexcel_freezed');
+                secondColumn.style.left = obj.secondColumnPosition + 'px';
+            } else {
+                var firstColumn = obj.records[i][freezeColumnIndex];
+
+                firstColumn.classList.add('jexcel_freezed');
+                firstColumn.style.left = obj.firstColumnPosition + 'px';
+            }
+        }
     }, 0);
 
     obj.content.addEventListener('scroll', obj.freezeColumn);

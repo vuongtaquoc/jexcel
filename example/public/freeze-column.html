@@ -13,7 +13,7 @@
   <script src="https://bossanova.uk/jsuites/v2/jsuites.js"></script>
   <script src="/dist/jexcel.js"></script>
   <script>
-    jexcel(document.getElementById('spreadsheet'), {
+    var table = jexcel(document.getElementById('spreadsheet'), {
       data: null,
       minDimensions: [20,500],
       tableOverflow: true,
@@ -46,6 +46,8 @@
         ],
     ],
     });
+
+    table.hideIndex(0)
   </script>
 </body>
 </html>

@@ -695,14 +695,25 @@
 .jexcel thead .jexcel_freezed {
     left: 0px;
     z-index: 30 !important;
-    box-shadow: 2px 0px 2px 0.2px #ccc !important;
-    -webkit-box-shadow: 2px 0px 2px 0.2px #ccc !important;
-    -moz-box-shadow: 2px 0px 2px 0.2px #ccc !important;
+    position: -webkit-sticky;
+    position: sticky;
 }
 .jexcel tbody .jexcel_freezed {
-    position: relative;
-    background-color: #fff;
+    position: -webkit-sticky;
+    position: sticky;
+}
+
+.jexcel_content.table-freeze-column .jexcel tbody .jexcel_freezed,
+.jexcel_content.table-freeze-column .jexcel thead .jexcel_freezed {
     box-shadow: 1px 1px 1px 1px #ccc !important;
     -webkit-box-shadow: 2px 4px 4px 0.1px #ccc !important;
     -moz-box-shadow: 2px 4px 4px 0.1px #ccc !important;
+    background-color: #fff;
+    -webkit-transition: box-shadow 0.3s;
+    -moz-transition: box-shadow 0.3s;
+    transition: box-shadow 0.3s;
+}
+
+.jexcel_content.table-freeze-column .jexcel thead .jexcel_freezed {
+    background-color: #f3f3f3;
 }
