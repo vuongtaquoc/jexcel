@@ -5527,6 +5527,23 @@ var jexcel = (function(el, options) {
         }
     }
 
+    obj.setReadonlyRowsFormula = function(rowIndexes, colIngnoreIndexes) {
+        for (var j = 0; j < obj.rows.length; j++) {
+            for (var i = 0; i < obj.headers.length; i++) {
+                var cell = obj.records[j][i];
+
+                if (rowIndexes.indexOf(j) > -1) {
+                    cell.classList.add('readonly');
+                    cell.classList.add('row-formula-readonly');
+
+                    if (colIngnoreIndexes.indexOf(i) === -1) {
+                        cell.innerHTML = '';
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Copy method
      *
