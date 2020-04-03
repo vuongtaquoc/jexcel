@@ -44,8 +44,8 @@
 }
 
 .jexcel_content::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 10px;
+    height: 10px;
 }
 
 .jexcel_content::-webkit-scrollbar-track {
@@ -54,6 +54,7 @@
 
 .jexcel_content::-webkit-scrollbar-thumb {
   background: #666;
+  border-radius: 10px;
 }
 
 .jexcel {
@@ -712,8 +713,13 @@
     -webkit-transition: box-shadow 0.3s;
     -moz-transition: box-shadow 0.3s;
     transition: box-shadow 0.3s;
+
 }
 
 .jexcel_content.table-freeze-column .jexcel thead .jexcel_freezed {
     background-color: #f3f3f3;
+}
+
+.jexcel_content.table-sticky-header .jexcel > thead > tr > td {
+    border-bottom-color: #ccc;
 }

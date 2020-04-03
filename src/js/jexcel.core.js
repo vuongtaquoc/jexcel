@@ -605,6 +605,12 @@ var jexcel = (function(el, options) {
         } else {
             obj.content.classList.remove('table-freeze-column');
         }
+
+        if (obj.content.scrollTop > 0) {
+            obj.content.classList.add('table-sticky-header');
+        } else {
+            obj.content.classList.remove('table-sticky-header');
+        }
     }
 
     /**
@@ -769,6 +775,8 @@ var jexcel = (function(el, options) {
                 obj.options.onload(el, obj);
             }
         }
+
+        obj.updateFreezeColumn();
     }
 
     /**
@@ -6401,6 +6409,68 @@ var jexcel = (function(el, options) {
         }
     }
 
+    obj.updateFreezeColumn = function() {
+        setTimeout(() => {
+            var freezeColumnIndex = obj.options.freezeColumns;
+            var nestedCells = obj.thead.rows[0] ? obj.thead.rows[0].cells : null;
+
+            if (freezeColumnIndex > 0) {
+                var firstColumn = obj.headers[freezeColumnIndex - 1];
+                var secondColumn = obj.headers[freezeColumnIndex];
+
+                obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft - 1 : 0;
+                obj.secondColumnPosition = secondColumn ? secondColumn.offsetLeft - 1 : 0;
+
+                // sticky header
+                obj.headers[freezeColumnIndex - 1].classList.add('jexcel_freezed');
+                obj.headers[freezeColumnIndex - 1].style.left = obj.firstColumnPosition + 'px';
+
+                obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
+                obj.headers[freezeColumnIndex].style.left = obj.secondColumnPosition + 'px';
+
+                if (nestedCells) {
+                    nestedCells[freezeColumnIndex].classList.add('jexcel_freezed');
+                    nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
+
+                    nestedCells[freezeColumnIndex].style.left = obj.firstColumnPosition + 'px';
+                    nestedCells[freezeColumnIndex + 1].style.left = obj.secondColumnPosition + 'px';
+                }
+            } else {
+                var firstColumn = obj.headers[freezeColumnIndex];
+
+                obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft - 1 : 0;
+                obj.secondColumnPosition = 0;
+
+                // sticky header
+                obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
+                obj.headers[freezeColumnIndex].style.left = obj.firstColumnPosition + 'px';
+
+                if (nestedCells) {
+                    nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
+                    nestedCells[freezeColumnIndex + 1].style.left = obj.firstColumnPosition + 'px';
+                }
+            }
+
+            for (var i = 0; i < obj.records.length; i++) {
+                if (freezeColumnIndex > 0) {
+                    var firstColumn = obj.records[i][freezeColumnIndex - 1];
+                    var secondColumn = obj.records[i][freezeColumnIndex];
+
+                    firstColumn.classList.add('jexcel_freezed');
+                    firstColumn.style.left = obj.firstColumnPosition + 'px';
+
+                    secondColumn.classList.add('jexcel_freezed');
+                    secondColumn.style.left = obj.secondColumnPosition + 'px';
+                } else {
+                    var firstColumn = obj.records[i][freezeColumnIndex];
+
+                    firstColumn.classList.add('jexcel_freezed');
+                    firstColumn.style.left = obj.firstColumnPosition + 'px';
+                }
+            }
+        }, 0);
+    }
+
     el.addEventListener("DOMMouseScroll", obj.scrollControls);
     el.addEventListener("mousewheel", obj.scrollControls);
     el.jexcel = obj;
@@ -6408,65 +6478,7 @@ var jexcel = (function(el, options) {
     obj.init();
 
     // freeze Column
-    setTimeout(() => {
-        var freezeColumnIndex = obj.options.freezeColumns;
-        var nestedCells = obj.thead.rows[0] ? obj.thead.rows[0].cells : null;
-
-        if (freezeColumnIndex > 0) {
-            var firstColumn = obj.headers[freezeColumnIndex - 1];
-            var secondColumn = obj.headers[freezeColumnIndex];
-
-            obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft - 1 : 0;
-            obj.secondColumnPosition = secondColumn ? secondColumn.offsetLeft - 1 : 0;
-
-            // sticky header
-            obj.headers[freezeColumnIndex - 1].classList.add('jexcel_freezed');
-            obj.headers[freezeColumnIndex - 1].style.left = obj.firstColumnPosition + 'px';
-
-            obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
-            obj.headers[freezeColumnIndex].style.left = obj.secondColumnPosition + 'px';
-
-            if (nestedCells) {
-                nestedCells[freezeColumnIndex].classList.add('jexcel_freezed');
-                nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
-
-                nestedCells[freezeColumnIndex].style.left = obj.firstColumnPosition + 'px';
-                nestedCells[freezeColumnIndex + 1].style.left = obj.secondColumnPosition + 'px';
-            }
-        } else {
-            var firstColumn = obj.headers[freezeColumnIndex];
-
-            obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft - 1 : 0;
-            obj.secondColumnPosition = 0;
-
-            // sticky header
-            obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
-            obj.headers[freezeColumnIndex].style.left = obj.firstColumnPosition + 'px';
-
-            if (nestedCells) {
-                nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
-                nestedCells[freezeColumnIndex + 1].style.left = obj.firstColumnPosition + 'px';
-            }
-        }
-
-        for (var i = 0; i < obj.records.length; i++) {
-            if (freezeColumnIndex > 0) {
-                var firstColumn = obj.records[i][freezeColumnIndex - 1];
-                var secondColumn = obj.records[i][freezeColumnIndex];
-
-                firstColumn.classList.add('jexcel_freezed');
-                firstColumn.style.left = obj.firstColumnPosition + 'px';
-
-                secondColumn.classList.add('jexcel_freezed');
-                secondColumn.style.left = obj.secondColumnPosition + 'px';
-            } else {
-                var firstColumn = obj.records[i][freezeColumnIndex];
-
-                firstColumn.classList.add('jexcel_freezed');
-                firstColumn.style.left = obj.firstColumnPosition + 'px';
-            }
-        }
-    }, 0);
+    obj.updateFreezeColumn();
 
     obj.content.addEventListener('scroll', obj.freezeColumn);
 
