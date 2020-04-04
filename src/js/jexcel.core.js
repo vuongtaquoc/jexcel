@@ -674,6 +674,10 @@ var jexcel = (function(el, options) {
                 for (var i = 0; i < obj.options.columns.length; i++) {
                     row[i] = obj.options.data[j][obj.options.columns[i].name];
                 }
+
+                row.origin = obj.options.data[j].origin;
+                row.options = obj.options.data[j].options;
+
                 data.push(row);
             }
 
@@ -779,6 +783,11 @@ var jexcel = (function(el, options) {
         obj.updateFreezeColumn();
     }
 
+    obj.updateTableSize = function(width, height) {
+        obj.content.style.width = width;
+        obj.content.style.height = height;
+    }
+
     /**
      * Get the whole table data
      *
@@ -851,6 +860,9 @@ var jexcel = (function(el, options) {
             }
 
             if (row != null) {
+                row.origin = obj.options.data[j].origin;
+                row.options = obj.options.data[j].options;
+
                 data.push(row);
             }
        }

@@ -9,13 +9,14 @@
 </head>
 <body>
   <div id="spreadsheet"></div>
+  <button id="get-data">Get Data</button>
 
   <script src="https://bossanova.uk/jsuites/v2/jsuites.js"></script>
   <script src="/dist/jexcel.js"></script>
   <script>
     var table = jexcel(document.getElementById('spreadsheet'), {
       data: null,
-      minDimensions: [42,500],
+      minDimensions: [42,100],
       tableOverflow: true,
       tableWidth: '600px',
       freezeColumns: 1,
@@ -47,7 +48,21 @@
     ],
     });
 
+    var data = [ 'asdsadsa', 323223]
+
+    data.origin = {
+      pro1: 'xxx'
+    }
+
+    table.setData([
+      data
+    ]);
+
     table.hideIndex(0)
+
+    document.getElementById('get-data').addEventListener('click', function() {
+      console.log(table.getJson())
+    })
   </script>
 </body>
 </html>
