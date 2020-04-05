@@ -6527,11 +6527,11 @@ jexcel.timeControlLoading = null;
 
 jexcel.destroy = function(element, destroyEventHandlers) {
     if (element.jexcel) {
-        element.jexcel.content.removeEventListener('scroll', obj.freezeColumn);
+        element.jexcel.content.removeEventListener('scroll', element.jexcel.freezeColumn);
         element.removeEventListener("DOMMouseScroll", element.jexcel.scrollControls);
         element.removeEventListener("mousewheel", element.jexcel.scrollControls);
-        element.jexcel = null;
-        element.innerHTML = '';
+        // element.jexcel = null;
+        // element.innerHTML = '';
 
         if (destroyEventHandlers) {
             document.removeEventListener("keydown", jexcel.keyDownControls);
@@ -6545,7 +6545,7 @@ jexcel.destroy = function(element, destroyEventHandlers) {
             document.removeEventListener("touchstart", jexcel.touchStartControls);
             document.removeEventListener("touchend", jexcel.touchEndControls);
             document.removeEventListener("touchcancel", jexcel.touchEndControls);
-            jexcel = null;
+            // jexcel = null;
         }
     }
 }
