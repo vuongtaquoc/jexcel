@@ -780,6 +780,8 @@ var jexcel = (function(el, options) {
             }
         }
 
+        obj.content.scrollLeft = 0;
+
         obj.updateFreezeColumn();
     }
 
