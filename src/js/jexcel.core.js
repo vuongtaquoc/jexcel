@@ -1544,31 +1544,49 @@ var jexcel = (function(el, options) {
                     var value = obj.options.data[y][x];
 
                     // Create dropdown
+                    var createDropdown = function(source) {
+                        var editor = createEditor('div');
+                        var options = {
+                            data: source,
+                            multiple: obj.options.columns[x].multiple ? true : false,
+                            autocomplete: obj.options.columns[x].autocomplete || obj.options.columns[x].type == 'autocomplete' ? true : false,
+                            opened:true,
+                            value: obj.options.columns[x].multiple ? value.split(';') : value,
+                            width:'100%',
+                            height:editor.style.minHeight,
+                            position: (obj.options.tableOverflow == true || obj.options.fullscreen == true) ? true : false,
+                            onclose:function() {
+                                obj.closeEditor(cell, true);
+                            }
+                        };
+                        if (obj.options.columns[x].options && obj.options.columns[x].options.type) {
+                            options.type = obj.options.columns[x].options.type;
+                        }
+                        jSuites.dropdown(editor, options);
+                    };
+
                     if (typeof(obj.options.columns[x].filter) == 'function') {
-                        var source = obj.options.columns[x].filter(el, cell, x, y, obj.options.columns[x].source);
+                        var result = obj.options.columns[x].filter(el, cell, x, y, obj.options.columns[x].source);
+
+                        if (typeof result.then === 'function') {
+                            result.then(function(source) {
+                                obj.dropdownSourceTmp = [ ...source ];
+
+                                createDropdown(source);
+                            });
+                        } else {
+                            obj.dropdownSourceTmp = [ ...result ];
+
+                            createDropdown(result);
+                        }
                     } else {
                         var source = obj.options.columns[x].source;
-                    }
 
-                    // Create editor
-                    var editor = createEditor('div');
-                    var options = {
-                        data: source,
-                        multiple: obj.options.columns[x].multiple ? true : false,
-                        autocomplete: obj.options.columns[x].autocomplete || obj.options.columns[x].type == 'autocomplete' ? true : false,
-                        opened:true,
-                        value: obj.options.columns[x].multiple ? value.split(';') : value,
-                        width:'100%',
-                        height:editor.style.minHeight,
-                        position: (obj.options.tableOverflow == true || obj.options.fullscreen == true) ? true : false,
-                        onclose:function() {
-                            obj.closeEditor(cell, true);
-                        }
-                    };
-                    if (obj.options.columns[x].options && obj.options.columns[x].options.type) {
-                        options.type = obj.options.columns[x].options.type;
+                        obj.dropdownSourceTmp = [];
+
+                        // Create editor
+                        createDropdown(source);
                     }
-                    jSuites.dropdown(editor, options);
                 } else if (obj.options.columns[x].type == 'calendar' || obj.options.columns[x].type == 'color') {
                     // Value
                     var value = obj.options.data[y][x];
@@ -6042,7 +6060,7 @@ var jexcel = (function(el, options) {
         if (obj.options.columns[column] && obj.options.columns[column].source) {
             // Create array from source
             var combo = [];
-            var source = obj.options.columns[column].source;
+            var source = obj.options.columns[column].source.length ? obj.options.columns[column].source : (obj.dropdownSourceTmp || []);
 
             for (var i = 0; i < source.length; i++) {
                 if (typeof(source[i]) == 'object') {

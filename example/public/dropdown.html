@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dropdown</title>
+  <link rel="stylesheet" href="https://bossanova.uk/jsuites/v2/jsuites.css" type="text/css" />
+  <link rel="stylesheet" href="/dist/jexcel.css">
+</head>
+<body>
+  <div id="spreadsheet"></div>
+  <button id="get-data">Get Data</button>
+
+  <script src="https://bossanova.uk/jsuites/v2/jsuites.js"></script>
+  <script src="/dist/jexcel.js"></script>
+  <script>
+    var data2 = [
+        [3, 'Cheese', true],
+        [1, 'Apples', true],
+        [2, 'Carrots', true],
+        [1, 'Oranges', false],
+    ];
+
+    dropdownFilter = function(instance, cell, c, r, source) {
+        var value = instance.jexcel.getValueFromCoords(c - 1, r);
+
+        return fetch('http://103.141.144.156:8082/api/peoples', {
+          method: 'GET',
+          headers: {
+            'X-Authorization-Token': 'demo'
+          }
+        }).then(res => res.json())
+        .then(value => {
+          console.log(value)
+          return value.data;
+        });
+
+        // if (value == 1) {
+        //   return [ {'id':'1', 'name':'Fruits'}, {'id':'2', 'name':'Legumes'}, {'id':'3', 'name':'General Food'} ];
+        // } else if (value == 2) {
+        //   return [ {'id':'4', 'name':'vuong'}, {'id':'5', 'name':'vuong2'}, {'id':'6', 'name':'vuong3'} ];
+        // } else {
+        //   return source;
+        // }
+    }
+
+    jexcel(document.getElementById('spreadsheet'), {
+        data:data2,
+        columns: [
+            { type:'dropdown', title:'Category', width:'300', source:[ {'id':'1', 'name':'Fruits'}, {'id':'2', 'name':'Legumes'}, {'id':'3', 'name':'General Food'} ] },
+            { type:'dropdown', title:'Food', width:'200', source:[ ], filter:dropdownFilter },
+            { type: 'checkbox', title:'Buy', width:'100' },
+        ],
+        onchange:function(instance, cell, c, r, value) {
+            // if (c == 0) {
+            //   var columnName = jexcel.getColumnNameFromId([c + 1, r]);
+            //   instance.jexcel.setValue(columnName, '');
+            // }
+        }
+    });
+  </script>
+</body>
+</html>
