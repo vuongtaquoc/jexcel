@@ -35,7 +35,7 @@ var jexcel = (function(el, options) {
         // Minimal table dimensions
         minDimensions:[0,0],
         // Allow Export
-        allowExport:true,
+        allowExport:false,
         // @type {boolean} - Include the header titles on download
         includeHeadersOnDownload:false,
         // Allow column sorting
@@ -181,7 +181,7 @@ var jexcel = (function(el, options) {
             noCellsSelected: 'No cells selected',
         },
         // About message
-        about:"jExcel CE Spreadsheet\nVersion 3.9.1\nAuthor: Paul Hodel <paul.hodel@gmail.com>\nWebsite: https://bossanova.uk/jexcel/v3",
+        about:"",
     };
 
     // Loading initial configuration from user
@@ -1573,6 +1573,10 @@ var jexcel = (function(el, options) {
                                 obj.dropdownSourceTmp = [ ...source ];
 
                                 createDropdown(source);
+                            }).catch(function() {
+                                obj.dropdownSourceTmp = [];
+
+                                createDropdown([]);
                             });
                         } else {
                             obj.dropdownSourceTmp = [ ...result ];
@@ -2520,7 +2524,9 @@ var jexcel = (function(el, options) {
                     // Right border
                     obj.records[j][borderRight].classList.add('highlight-right');
                     // Add selected from rows
-                    obj.rows[j].classList.add('selected');
+                    if (!obj.rows[j].classList.contains('row-readonly')) {
+                        obj.rows[j].classList.add('selected');
+                    }
                 }
             }
 
@@ -5552,6 +5558,12 @@ var jexcel = (function(el, options) {
 
     obj.setReadonlyRowsTitle = function(rowIndexes, colIngnoreIndexes) {
         for (var j = 0; j < obj.rows.length; j++) {
+            if (rowIndexes.indexOf(j) > -1) {
+                var row = obj.rows[j];
+
+                row.classList.add('row-readonly');
+            }
+
             for (var i = 0; i < obj.headers.length; i++) {
                 var cell = obj.records[j][i];
 
@@ -6321,7 +6333,11 @@ var jexcel = (function(el, options) {
                     items.push({
                         title:obj.options.text.deleteSelectedRows,
                         onclick:function() {
-                            obj.deleteRow(obj.getSelectedRows().length ? undefined : parseInt(y));
+                            if (!obj.getSelectedRows().length && obj.rows[y].classList.contains('row-readonly')) {
+                                // do nothing
+                            } else {
+                                obj.deleteRow(obj.getSelectedRows().length ? undefined : parseInt(y));
+                            }
                         }
                     });
                 }

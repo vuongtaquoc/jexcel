@@ -48,17 +48,12 @@
     ],
     });
 
-    var data = [ 'asdsadsa', 323223]
+    var data = [['aaa', 'bbb'], ['aaa1', 'bbb1'], ['aaa2', 'bbb2']]
 
-    data.origin = {
-      pro1: 'xxx'
-    }
-
-    table.setData([
-      data
-    ]);
+    table.setData(data);
 
     table.hideIndex(0)
+    table.setReadonlyRowsTitle([ 0, 1 ], [0, 1])
 
     document.getElementById('get-data').addEventListener('click', function() {
       console.log(table.getJson())
