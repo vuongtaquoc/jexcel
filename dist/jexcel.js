@@ -6201,7 +6201,7 @@ var jexcel = (function(el, options) {
         // Build handlers
         if (typeof(jexcel.build) == 'function') {
             jexcel.build();
-            jexcel.build = null;
+            // jexcel.build = null;
         }
 
         // Load the table data based on an CSV file
