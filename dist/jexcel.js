@@ -5620,6 +5620,16 @@ var jexcel = (function(el, options) {
         }
     }
 
+    obj.setTableSize = function(width, height) {
+        if (width) {
+            obj.content.style.width = width;
+        }
+
+        if (height) {
+            obj.content.style.height = height;
+        }
+    }
+
     /**
      * Copy method
      *
@@ -6484,28 +6494,35 @@ var jexcel = (function(el, options) {
     obj.updateFreezeColumn = function() {
         setTimeout(() => {
             var freezeColumnIndex = obj.options.freezeColumns;
-            var nestedCells = obj.thead.rows[0] ? obj.thead.rows[0].cells : null;
 
-            if (freezeColumnIndex > 0) {
-                var firstColumn = obj.headers[freezeColumnIndex - 1];
-                var secondColumn = obj.headers[freezeColumnIndex];
+            if (typeof freezeColumnIndex !== 'number') {
+                return;
+            }
 
-                obj.firstColumnPosition = firstColumn ? firstColumn.offsetLeft - 1 : 0;
-                obj.secondColumnPosition = secondColumn ? secondColumn.offsetLeft - 1 : 0;
+            var nestedRowCells1 = obj.thead.rows[0] ? obj.thead.rows[0].cells : null;
+            var nestedRowCells2 = obj.thead.rows[1] ? obj.thead.rows[1].cells : null;
+            var columnPositions = [];
 
-                // sticky header
-                obj.headers[freezeColumnIndex - 1].classList.add('jexcel_freezed');
-                obj.headers[freezeColumnIndex - 1].style.left = obj.firstColumnPosition + 'px';
+            if (freezeColumnIndex > 0) {for (var i = 0; i <= freezeColumnIndex; i++) {
+                    var column = obj.headers[i];
+                    var position = columnPositions[i] = column ? column.offsetLeft - 1 : 0;
 
-                obj.headers[freezeColumnIndex].classList.add('jexcel_freezed');
-                obj.headers[freezeColumnIndex].style.left = obj.secondColumnPosition + 'px';
+                    // sticky header
+                    column.classList.add('jexcel_freezed');
+                    column.style.left = position + 'px';
 
-                if (nestedCells) {
-                    nestedCells[freezeColumnIndex].classList.add('jexcel_freezed');
-                    nestedCells[freezeColumnIndex + 1].classList.add('jexcel_freezed');
+                    // TODO change hardcode
+                    if (nestedRowCells1 && nestedRowCells1[i + 1]) {
+                        if ((freezeColumnIndex === 4 && i < freezeColumnIndex) || freezeColumnIndex === 1 || freezeColumnIndex === 2 || freezeColumnIndex === 3) {
+                            nestedRowCells1[i + 1].classList.add('jexcel_freezed');
+                            nestedRowCells1[i + 1].style.left = position + 'px';
+                        }
+                    }
 
-                    nestedCells[freezeColumnIndex].style.left = obj.firstColumnPosition + 'px';
-                    nestedCells[freezeColumnIndex + 1].style.left = obj.secondColumnPosition + 'px';
+                    if (freezeColumnIndex === 4 && i >= 3) {
+                        nestedRowCells2[i - 2].classList.add('jexcel_freezed');
+                        nestedRowCells2[i - 2].style.left = position + 'px';
+                    }
                 }
             } else {
                 var firstColumn = obj.headers[freezeColumnIndex];
@@ -6525,14 +6542,12 @@ var jexcel = (function(el, options) {
 
             for (var i = 0; i < obj.records.length; i++) {
                 if (freezeColumnIndex > 0) {
-                    var firstColumn = obj.records[i][freezeColumnIndex - 1];
-                    var secondColumn = obj.records[i][freezeColumnIndex];
+                    for (var j = 0; j <= freezeColumnIndex; j++) {
+                        var column = obj.records[i][j];
 
-                    firstColumn.classList.add('jexcel_freezed');
-                    firstColumn.style.left = obj.firstColumnPosition + 'px';
-
-                    secondColumn.classList.add('jexcel_freezed');
-                    secondColumn.style.left = obj.secondColumnPosition + 'px';
+                        column.classList.add('jexcel_freezed');
+                        column.style.left = columnPositions[j] + 'px';
+                    }
                 } else {
                     var firstColumn = obj.records[i][freezeColumnIndex];
 
