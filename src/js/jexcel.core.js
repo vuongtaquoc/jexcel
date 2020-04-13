@@ -1660,6 +1660,28 @@ var jexcel = (function(el, options) {
         }
     }
 
+    obj.updateDropdownValue = function(x, y) {
+         // Get current value
+         var value = obj.options.data[y][x];
+         var cell = obj.records[y][x];
+
+        if (typeof(obj.options.columns[x].filter) == 'function') {
+            var result = obj.options.columns[x].filter(el, cell, x, y, obj.options.columns[x].source);
+
+            if (typeof result.then === 'function') {
+                result.then(function(source) {
+                    var s = source.find(d => d.id == value);
+
+                    cell.innerHTML = s ? s.name : '';
+                });
+            } else {
+                var s = result.find(d => d.id == value);
+
+                cell.innerHTML = s ? s.name : '';
+            }
+        }
+    }
+
     /**
      * Close the editor and save the information
      *
