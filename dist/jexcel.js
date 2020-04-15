@@ -5627,6 +5627,12 @@ var jexcel = (function(el, options) {
 
     obj.setReadonlyRowsFormula = function(rowIndexes, colIngnoreIndexes) {
         for (var j = 0; j < obj.rows.length; j++) {
+            if (rowIndexes.indexOf(j) > -1) {
+                var row = obj.rows[j];
+
+                row.classList.add('row-readonly');
+            }
+
             for (var i = 0; i < obj.headers.length; i++) {
                 var cell = obj.records[j][i];
 
