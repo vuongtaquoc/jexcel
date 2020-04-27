@@ -17,4 +17,8 @@ app.get('/dropdown', (req, res, next) => {
   res.sendFile(path.join(publicDir, '/dropdown.html'))
 })
 
+app.get('/validation', (req, res, next) => {
+  res.sendFile(path.join(publicDir, '/validation.html'))
+})
+
 app.listen(5000, () => console.log('App listening at 5000'))

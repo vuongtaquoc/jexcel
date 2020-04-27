@@ -723,3 +723,8 @@
 .jexcel_content.table-sticky-header .jexcel > thead > tr > td {
     border-bottom-color: #ccc;
 }
+
+
+table.jexcel > tbody > tr > td.jexcel_cell_error {
+    background-color: #F44336;
+}

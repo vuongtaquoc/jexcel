@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dropdown</title>
+  <link rel="stylesheet" href="https://bossanova.uk/jsuites/v2/jsuites.css" type="text/css" />
+  <link rel="stylesheet" href="/dist/jexcel.css">
+</head>
+<body>
+  <div id="spreadsheet"></div>
+  <button id="add-data">Add Data</button>
+
+  <script src="https://bossanova.uk/jsuites/v2/jsuites.js"></script>
+  <script src="/dist/jexcel.js"></script>
+  <script>
+    var data2 = [
+      [3, 'Cheese'],
+      [1, 'Apples'],
+      [2, 'Carrots'],
+      [1, 'Oranges'],
+    ];
+    const addData = document.getElementById('add-data');
+
+    const table = jexcel(document.getElementById('spreadsheet'), {
+        data: [],
+        columns: [
+            {
+              type:'dropdown', title:'Category', width:'300', source:[ {'id':'1', 'name':'Fruits'}, {'id':'2', 'name':'Legumes'}, {'id':'3', 'name':'General Food'} ],
+              // validations: {
+              //   required: true
+              // }
+            },
+            {
+              type: 'text', title:'Buy', width:'100',
+              validations: {
+                required: true,
+                minLength: 1,
+                maxLength: 10
+              }
+            },
+            {
+              type: 'numberic', title:'Buy', width:'100',
+              validations: {
+                required: true,
+                number: true,
+                min: 1,
+                max: 100
+              }
+            },
+        ],
+        onchange:function(instance, cell, c, r, value) {
+            // if (c == 0) {
+            //   var columnName = jexcel.getColumnNameFromId([c + 1, r]);
+            //   instance.jexcel.setValue(columnName, '');
+            // }
+          console.log(table.isTableValid())
+        }
+    });
+
+    table.setData(data2);
+    console.log(table.isTableValid())
+
+    addData.addEventListener('click', () => {
+      data2.push([]);
+      table.setData(data2);
+    });
+  </script>
+</body>
+</html>

@@ -26,7 +26,9 @@
 
 var jexcel = (function(el, options) {
     // Create jexcel object
-    var obj = {};
+    var obj = {
+        invalid: {}
+    };
     obj.options = {};
 
     if (! (el instanceof Element || el instanceof HTMLDocument)) {
@@ -203,6 +205,16 @@ var jexcel = (function(el, options) {
             invalidMergeProperties: 'Invalid merged properties',
             cellAlreadyMerged: 'Cell already merged',
             noCellsSelected: 'No cells selected',
+            validation: {
+                required: (name) => `${name} không được để trống`,
+                number: (name) => `${name} phải là số`,
+                min: (name, {min}) => `${name} phải lớn hơn hoặc bằng ${min}`,
+                max: (name, {max}) => `${name} phải nhỏ hơn hoặc bằng ${max}`,
+                minMax: (name, {min, max}) => `${name} phải nằm trong khoảng từ ${min} đến ${max}`,
+                minLength: (name, {min}) => `${name} phải nhiều hơn hoặc bằng ${min} ký tự`,
+                maxLength: (name, {max}) => `${name} phải ít hơn hoặc bằng ${max} ký tự`,
+                minMaxLength: (name, {min, max}) => `${name} phải từ ${min} đến ${max} ký tự`
+            }
         },
         // About message
         about:"",
@@ -808,11 +820,176 @@ var jexcel = (function(el, options) {
         obj.content.scrollLeft = 0;
 
         obj.updateFreezeColumn();
+
+        // validation
+        obj.validationAllCells();
     }
 
     obj.updateTableSize = function(width, height) {
         obj.content.style.width = width;
         obj.content.style.height = height;
+    }
+
+    obj.isTableValid = function() {
+        return Object.keys(obj.invalid).length === 0;
+    }
+
+    obj.validationAllCells = function() {
+        for (var y = 0; y < obj.options.data.length; y++) {
+            var row = obj.options.data[y];
+
+            for (var x = 0; x < obj.options.columns.length; x++) {
+                var column = obj.options.columns[x];
+                var data = row[x];
+
+                obj.validation(column.title, column.validations, data, x, y);
+            }
+        }
+    }
+
+    obj.validation = function(title, rules, data, x, y) {
+        rules = rules || {};
+        var valid = {};
+
+        if (rules.required) {
+            valid.required = obj.validRequired(data);
+        }
+
+        if (rules.number) {
+            valid.number = obj.validNumber(data);
+        }
+
+        if (rules.min && rules.max) {
+            valid.minMax = obj.validMinMaxNumber(data, rules.min, rules.max);
+        } else {
+            if (rules.min) {
+                valid.min = obj.validMinNumber(data, rules.min);
+            }
+
+            if (rules.max) {
+                valid.max = obj.validMaxNumber(data, rules.max);
+            }
+        }
+
+        if (rules.minLength && rules.maxLength) {
+            valid.minMaxLength = obj.validMinMaxLength(data, rules.minLength, rules.maxLength);
+        } else {
+            if (rules.minLength) {
+                valid.minLength = obj.validMinLength(data, rules.minLength);
+            }
+
+            if (rules.maxLength) {
+                valid.maxLength = obj.validMaxLength(data, rules.maxLength);
+            }
+        }
+
+        // check valid
+        if (Object.values(valid).indexOf(false) > -1) {
+            obj.setCellError(title, x, y, rules, valid, true);
+        } else {
+            obj.setCellError(title, x, y, rules, valid, false);
+        }
+    }
+
+    obj.setCellError = function(title, x, y, rules, valid, isError) {
+        var columnName = jexcel.getColumnNameFromId([ x, y ]);
+
+        if (isError) {
+            obj.records[y][x].classList.add('jexcel_cell_error');
+            obj.invalid[`${y}_${x}`] = true;
+
+            var invalidIndex = Object.values(valid).indexOf(false);
+            var errorType = Object.keys(valid)[invalidIndex];
+            var text = obj.options.text.validation[errorType] || function() {};
+            var rule = rules[errorType] || {};
+
+            if (errorType === 'minMax') {
+                rule.min = rules.min;
+                rule.max = rules.max;
+            } else if (errorType === 'minMaxLength') {
+                rule.minLength = rules.minLength;
+                rule.maxLength = rules.maxLength;
+            }
+
+            obj.setComments(columnName, text(title, rule || {}));
+        } else {
+            obj.records[y][x].classList.remove('jexcel_cell_error');
+            obj.setComments(columnName, '');
+
+            delete obj.invalid[`${y}_${x}`];
+        }
+    }
+
+    obj.validRequired = function(value) {
+        if (value === '' || typeof value === 'undefined' || value === null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    obj.validNumber = function(value) {
+        return /^\d*$/.test(value);
+    }
+
+    obj.validMinLength = function(value, minLength) {
+        if (value === null || typeof value === 'undefined') {
+            return false;
+        }
+
+        var length = value.toString().length;
+
+        return length >= minLength;
+    }
+
+    obj.validMaxLength = function(value, maxLength) {
+        if (value === null || typeof value === 'undefined') {
+            return false;
+        }
+
+        var length = value.toString().length;
+
+        return length <= maxLength;
+    }
+
+    obj.validMinMaxLength = function(value, minLength, maxLength) {
+        if (value === null || typeof value === 'undefined') {
+            return false;
+        }
+
+        var length = value.toString().length;
+
+        return length >= minLength && length <= maxLength;
+    }
+
+    obj.validMinNumber = function(value, min) {
+        if (!obj.validNumber(value)) {
+            return false;
+        }
+
+        value = Number(value);
+
+        return value >= min;
+    }
+
+    obj.validMaxNumber = function(value, max) {
+        if (!obj.validNumber(value)) {
+            return false;
+        }
+
+        value = Number(value);
+
+        return value <= max;
+    }
+
+    obj.validMinMaxNumber = function(value, min, max) {
+        if (!obj.validNumber(value)) {
+            return false;
+        }
+
+        value = Number(value);
+
+        return value >= min && value <= max;
     }
 
     /**
@@ -1048,7 +1225,7 @@ var jexcel = (function(el, options) {
                 value = '' + jSuites.mask.run(value, obj.options.columns[i].mask, decimal);
             }
 
-            td.innerHTML = value;
+            td.innerHTML = value === '' ? '&nbsp;' : value;
         }
 
         // Readonly
@@ -1895,6 +2072,14 @@ var jexcel = (function(el, options) {
         return value;
     }
 
+    obj.getRowFromCoords = function(y) {
+        if (y === null) {
+            return null;
+        }
+
+        return obj.options.data[y];
+    }
+
     /**
      * Set a cell value
      *
@@ -2055,6 +2240,9 @@ var jexcel = (function(el, options) {
                     }
                 }
             }
+            var column = obj.options.columns[x];
+
+            obj.validation(column.title, column.validations, value, x, y);
 
             // History format
             var record = {
@@ -6610,6 +6798,7 @@ jexcel.destroy = function(element, destroyEventHandlers) {
         element.jexcel.content.removeEventListener('scroll', element.jexcel.freezeColumn);
         element.removeEventListener("DOMMouseScroll", element.jexcel.scrollControls);
         element.removeEventListener("mousewheel", element.jexcel.scrollControls);
+        element.jexcel.invalid = null;
         // element.jexcel = null;
         // element.innerHTML = '';
 
