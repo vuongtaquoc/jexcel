@@ -823,7 +823,7 @@ var jexcel = (function(el, options) {
                     continue;
                 }
 
-                obj.validation(column.title, column.validations, data, x, y);
+                obj.validation(column.name || column.title, column.validations, data, x, y);
             }
         }
     }
@@ -2300,7 +2300,7 @@ var jexcel = (function(el, options) {
             }
             var column = obj.options.columns[x];
 
-            obj.validation(column.title, column.validations, value, x, y);
+            obj.validation(column.name || column.title, column.validations, value, x, y);
 
             // History format
             var record = {
