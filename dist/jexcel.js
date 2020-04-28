@@ -839,15 +839,15 @@ var jexcel = (function(el, options) {
         for (var y = 0; y < obj.options.data.length; y++) {
             var row = obj.options.data[y];
 
+            if (row.options && (row.options.hasLeaf || row.options.formula)) {
+                continue;
+            }
+
             for (var x = 0; x < obj.options.columns.length; x++) {
                 var column = obj.options.columns[x];
                 var data = row[x];
 
-                if (data.options && data.options.hasLeaf) {
-                    continue;
-                }
-
-                obj.validation(column.name || column.title, column.validations, data, x, y);
+                obj.validation(column.fieldName || column.title, column.validations, data, x, y);
             }
         }
     }
@@ -2324,7 +2324,7 @@ var jexcel = (function(el, options) {
             }
             var column = obj.options.columns[x];
 
-            obj.validation(column.name || column.title, column.validations, value, x, y);
+            obj.validation(column.fieldName || column.title, column.validations, value, x, y);
 
             // History format
             var record = {
