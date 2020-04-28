@@ -190,7 +190,7 @@ var jexcel = (function(el, options) {
                 minLength: (name, {min}) => `${name} phải nhiều hơn hoặc bằng ${min} ký tự`,
                 maxLength: (name, {max}) => `${name} phải ít hơn hoặc bằng ${max} ký tự`,
                 minMaxLength: (name, {min, max}) => `${name} phải từ ${min} đến ${max} ký tự`,
-                cardId: (name) => `${name} phải chứa 9 hoặc 12 ký tự số hoặc 1 chữ cái và 7 ký tự số`
+                cardId: (name) => `${name} phải chứa 9 ký tự số hoặc 12 ký tự số hoặc 8 ký tự trong đó 7 ký tự cuối là số`
             }
         },
         // About message
@@ -815,7 +815,7 @@ var jexcel = (function(el, options) {
         for (var y = 0; y < obj.options.data.length; y++) {
             var row = obj.options.data[y];
 
-            if (row.options && (row.options.hasLeaf || row.options.formula)) {
+            if (row.options && (row.options.isParent || row.options.formula)) {
                 continue;
             }
 
@@ -899,7 +899,7 @@ var jexcel = (function(el, options) {
             var invalidIndex = Object.values(valid).indexOf(false);
             var errorType = Object.keys(valid)[invalidIndex];
             var text = obj.options.text.validation[errorType] || function() {};
-            var rule = rules[errorType] || {};
+            var rule = rules[errorType] ? { [errorType]: rules[errorType] } : {};
 
             if (errorType === 'minMax') {
                 rule.min = rules.min;
@@ -909,7 +909,7 @@ var jexcel = (function(el, options) {
                 rule.maxLength = rules.maxLength;
             }
 
-            obj.setComments(columnName, text(title, rule || {}));
+            obj.setComments(columnName, text(title, rule));
         } else {
             obj.records[y][x].classList.remove('jexcel_cell_error');
             obj.setComments(columnName, '');
@@ -2299,8 +2299,13 @@ var jexcel = (function(el, options) {
                 }
             }
             var column = obj.options.columns[x];
+            var row = obj.options.data[y];
 
-            obj.validation(column.fieldName || column.title, column.validations, value, x, y);
+            if (row.options && (row.options.isParent || row.options.formula)) {
+                // Do nothing
+            } else {
+                obj.validation(column.fieldName || column.title, column.validations, value, x, y);
+            }
 
             // History format
             var record = {
