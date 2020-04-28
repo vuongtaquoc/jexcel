@@ -213,7 +213,8 @@ var jexcel = (function(el, options) {
                 minMax: (name, {min, max}) => `${name} phải nằm trong khoảng từ ${min} đến ${max}`,
                 minLength: (name, {min}) => `${name} phải nhiều hơn hoặc bằng ${min} ký tự`,
                 maxLength: (name, {max}) => `${name} phải ít hơn hoặc bằng ${max} ký tự`,
-                minMaxLength: (name, {min, max}) => `${name} phải từ ${min} đến ${max} ký tự`
+                minMaxLength: (name, {min, max}) => `${name} phải từ ${min} đến ${max} ký tự`,
+                cardId: (name) => `${name} phải chứa 9 hoặc 12 ký tự số hoặc 1 chữ cái và 7 ký tự số`
             }
         },
         // About message
@@ -842,9 +843,26 @@ var jexcel = (function(el, options) {
                 var column = obj.options.columns[x];
                 var data = row[x];
 
+                if (data.options && data.options.hasLeaf) {
+                    continue;
+                }
+
                 obj.validation(column.title, column.validations, data, x, y);
             }
         }
+    }
+
+    obj.normalize = function(id) {
+        var re;
+        re = /[-\/\s]/g;
+        id = id.toUpperCase().replace(re, '');
+        re = /\([A-Z0-9]\)$/;
+
+        if (re.test(id)) {
+            id = id.replace(/[\(\)]/g, '');
+        }
+
+        return id;
     }
 
     obj.validation = function(title, rules, data, x, y) {
@@ -881,6 +899,10 @@ var jexcel = (function(el, options) {
             if (rules.maxLength) {
                 valid.maxLength = obj.validMaxLength(data, rules.maxLength);
             }
+        }
+
+        if (rules.cardId) {
+            valid.cardId = obj.validCardId(data, 'peopleId') || obj.validCardId(data, 'cardId') || obj.validPassport(data);
         }
 
         // check valid
@@ -991,6 +1013,66 @@ var jexcel = (function(el, options) {
 
         return value >= min && value <= max;
     }
+
+    obj.validCardId = function(id, type = 'peopleId') {
+        var isFormatValid, isLengthValid;
+
+        isLengthValid = function isLengthValid(id) {
+          if (type === 'peopleId') {
+            return id.length === 9;
+          }
+          return id.length === 12;
+        };
+
+        isFormatValid = function isFormatValid(id) {
+          if (type === 'peopleId') {
+            return /^[0-9]{9}$/.test(id);
+          }
+          return /^[0-9]{12}$/.test(id);
+        };
+
+        id = obj.normalize(id);
+
+        return isLengthValid(id) && isFormatValid(id);
+    }
+
+    obj.validPassport = function(id) {
+        var isChecksumValid, isFormatValid, isLengthValid;
+
+        isLengthValid = function isLengthValid(id) {
+          return id.length === 8;
+        };
+
+        isFormatValid = function isFormatValid(id) {
+          return /^[A-Z][12][0-9]{6}$/.test(id);
+        };
+
+        isChecksumValid = function isChecksumValid(id) {
+          var _char, i, idLen, idTail, len, letterIndex, letters, remainder, weight, weightedSum;
+
+          idLen = id.length; // Each letter represents a value from [10..35]
+
+          letters = 'ABCDEFGHJKLMNPQRSTUVXYWZIO';
+          letterIndex = letters.indexOf(id[0]);
+          weightedSum = Math.floor(letterIndex / 8 + 1) + letterIndex * (idLen - 1);
+          idTail = id.slice(1); // Drop the letter
+
+          weight = idLen - 2; // Minus letter digit and check digit
+
+          for (i = 0, len = idTail.length; i < len; i++) {
+            _char = idTail[i];
+            weightedSum += +_char * weight;
+            weight--;
+          } // Note: the check digit of 'id' is weighted 0
+
+
+          remainder = (weightedSum + +id.slice(-1)) % 8;
+          return remainder === 0;
+        };
+
+        id = obj.normalize(id);
+        return isLengthValid(id) && isFormatValid(id) && isChecksumValid(id);
+      }
 
     /**
      * Get the whole table data

@@ -189,7 +189,8 @@ var jexcel = (function(el, options) {
                 minMax: (name, {min, max}) => `${name} phải nằm trong khoảng từ ${min} đến ${max}`,
                 minLength: (name, {min}) => `${name} phải nhiều hơn hoặc bằng ${min} ký tự`,
                 maxLength: (name, {max}) => `${name} phải ít hơn hoặc bằng ${max} ký tự`,
-                minMaxLength: (name, {min, max}) => `${name} phải từ ${min} đến ${max} ký tự`
+                minMaxLength: (name, {min, max}) => `${name} phải từ ${min} đến ${max} ký tự`,
+                cardId: (name) => `${name} phải chứa 9 hoặc 12 ký tự số hoặc 1 chữ cái và 7 ký tự số`
             }
         },
         // About message
@@ -818,6 +819,10 @@ var jexcel = (function(el, options) {
                 var column = obj.options.columns[x];
                 var data = row[x];
 
+                if (data.options && data.options.hasLeaf) {
+                    continue;
+                }
+
                 obj.validation(column.title, column.validations, data, x, y);
             }
         }
@@ -870,6 +875,10 @@ var jexcel = (function(el, options) {
             if (rules.maxLength) {
                 valid.maxLength = obj.validMaxLength(data, rules.maxLength);
             }
+        }
+
+        if (rules.cardId) {
+            valid.cardId = obj.validCardId(data, 'peopleId') || obj.validCardId(data, 'cardId') || obj.validPassport(data);
         }
 
         // check valid

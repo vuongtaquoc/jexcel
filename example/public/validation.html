@@ -48,6 +48,13 @@
                 max: 100
               }
             },
+            {
+              type: 'numberic', title:'Số CMT/Thẻ căn cước/Hộ chiếu', width:'200',
+              validations: {
+                required: true,
+                cardId: true
+              }
+            },
         ],
         onchange:function(instance, cell, c, r, value) {
             // if (c == 0) {
