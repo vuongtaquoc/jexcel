@@ -815,7 +815,7 @@ var jexcel = (function(el, options) {
         for (var y = 0; y < obj.options.data.length; y++) {
             var row = obj.options.data[y];
 
-            if (row.options && (row.options.isParent || row.options.formula)) {
+            if (row.options && (row.options.isParent || row.options.formula || row.options.isInitialize)) {
                 continue;
             }
 
