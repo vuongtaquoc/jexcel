@@ -211,10 +211,14 @@ var jexcel = (function(el, options) {
                 min: (name, {min}) => `${name} phải lớn hơn hoặc bằng ${min}`,
                 max: (name, {max}) => `${name} phải nhỏ hơn hoặc bằng ${max}`,
                 minMax: (name, {min, max}) => `${name} phải nằm trong khoảng từ ${min} đến ${max}`,
-                minLength: (name, {min}) => `${name} phải nhiều hơn hoặc bằng ${min} ký tự`,
-                maxLength: (name, {max}) => `${name} phải ít hơn hoặc bằng ${max} ký tự`,
-                minMaxLength: (name, {min, max}) => `${name} phải từ ${min} đến ${max} ký tự`,
-                cardId: (name) => `${name} phải chứa 9 ký tự số hoặc 12 ký tự số hoặc 8 ký tự trong đó 7 ký tự cuối là số`
+                minLength: (name, {min}) => `${name} phải nhiều hơn hoặc bằng ${minLength} ký tự`,
+                maxLength: (name, {max}) => `${name} phải ít hơn hoặc bằng ${maxLength} ký tự`,
+                minMaxLength: (name, {min, max}) => `${name} phải từ ${minLength} đến ${maxLength} ký tự`,
+                cardId: (name) => `${name} phải chứa 9 ký tự số hoặc 12 ký tự số hoặc 8 ký tự trong đó 7 ký tự cuối là số`,
+                numberLength: (name, { numberLength }) => `${name} là phải chuỗi ${ numberLength } ký tự số`,
+                numberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
+                minNumberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
+                maxNumberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`
             }
         },
         // About message
@@ -852,6 +856,28 @@ var jexcel = (function(el, options) {
         }
     }
 
+    obj.validationCell = function(y, x, fieldName, rules) {
+        var row = obj.options.data[y];
+
+        if (row.options && (row.options.isParent || row.options.formula || row.options.isInitialize)) {
+            return;
+        }
+
+        var column = obj.options.columns[x];
+        var data = row[x];
+
+        obj.validation(fieldName || column.fieldName || column.title, rules || column.validations, data, x, y);
+    }
+
+    obj.clearValidation = function(y, x) {
+        var columnName = jexcel.getColumnNameFromId([ x, y ]);
+
+        obj.records[y][x].classList.remove('jexcel_cell_error');
+        obj.setComments(columnName, '');
+
+        delete obj.invalid[`${y}_${x}`];
+    }
+
     obj.normalize = function(id) {
         var re;
         re = /[-\/\s]/g;
@@ -899,6 +925,22 @@ var jexcel = (function(el, options) {
             if (rules.maxLength) {
                 valid.maxLength = obj.validMaxLength(data, rules.maxLength);
             }
+        }
+
+        if (rules.numberLength) {
+            valid.numberLength = obj.validNumberLength(data, rules.numberLength);
+        }
+
+        if (rules.numberLengthByOtherField) {
+            valid.numberLengthByOtherField = obj.validNumberLengthByOtherField(data, rules.numberLengthByOtherField);
+        }
+
+        if (rules.minNumberLengthByOtherField) {
+            valid.minNumberLengthByOtherField = obj.validMinNumberLengthByOtherField(data, rules.minNumberLengthByOtherField);
+        }
+
+        if (rules.maxNumberLengthByOtherField) {
+            valid.maxNumberLengthByOtherField = obj.validMaxNumberLengthByOtherField(data, rules.maxNumberLengthByOtherField);
         }
 
         if (rules.cardId) {
@@ -952,6 +994,46 @@ var jexcel = (function(el, options) {
 
     obj.validNumber = function(value) {
         return /^\d*$/.test(value);
+    }
+
+    obj.validNumberLength = function(value, length) {
+        if (!obj.validNumber(value)) {
+            return false;
+        }
+
+        value = value.toString();
+
+        return value.length === length;
+    }
+
+    obj.validNumberLengthByOtherField = function(value, length) {
+        if (!obj.validNumber(value)) {
+            return false;
+        }
+
+        value = Number(value);
+
+        return value === length;
+    }
+
+    obj.validMinNumberLengthByOtherField = function(value, length) {
+        if (!obj.validNumber(value)) {
+            return false;
+        }
+
+        value = Number(value);
+
+        return value >= length;
+    }
+
+    obj.validMaxNumberLengthByOtherField = function(value, length) {
+        if (!obj.validNumber(value)) {
+            return false;
+        }
+
+        value = Number(value);
+
+        return value <= length;
     }
 
     obj.validMinLength = function(value, minLength) {
