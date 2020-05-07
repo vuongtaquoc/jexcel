@@ -6732,8 +6732,18 @@ var jexcel = (function(el, options) {
                     });
                 }
             } else {
+                var disallowItem = false;
+
+                if (x) {
+                    var record = obj.records[y][x];
+
+                    if (record.classList.contains('row-formula-readonly') || record.classList.contains('row-title-readonly')) {
+                        disallowItem = true;
+                    }
+                }
+
                 // Insert new row
-                if (obj.options.allowInsertRow == true) {
+                if (!disallowItem && obj.options.allowInsertRow == true) {
                     items.push({
                         title:obj.options.text.insertANewRowBefore,
                         onclick:function() {
@@ -6749,7 +6759,7 @@ var jexcel = (function(el, options) {
                     });
                 }
 
-                if (obj.options.allowDeleteRow == true) {
+                if (!disallowItem && obj.options.allowDeleteRow == true) {
                     items.push({
                         title:obj.options.text.deleteSelectedRows,
                         onclick:function() {
@@ -6791,7 +6801,9 @@ var jexcel = (function(el, options) {
             }
 
             // Line
-            items.push({ type:'line' });
+            if (items.length > 0) {
+                items.push({ type:'line' });
+            }
 
             // Copy
             items.push({
