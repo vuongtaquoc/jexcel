@@ -27,7 +27,8 @@
 var jexcel = (function(el, options) {
     // Create jexcel object
     var obj = {
-        invalid: {}
+        invalid: {},
+        invalidDuplicate: {}
     };
     obj.options = {};
 
@@ -218,7 +219,8 @@ var jexcel = (function(el, options) {
                 numberLength: (name, { numberLength }) => `${name} là phải chuỗi ${ numberLength } ký tự số`,
                 numberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
                 minNumberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
-                maxNumberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`
+                maxNumberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
+                duplicate: (name) => `${name} bị trùng đề nghị rà soát và kiểm tra lại`
             }
         },
         // About message
@@ -828,6 +830,7 @@ var jexcel = (function(el, options) {
 
         // validation
         obj.validationAllCells();
+        obj.validationDuplicate();
     }
 
     obj.updateTableSize = function(width, height) {
@@ -982,6 +985,67 @@ var jexcel = (function(el, options) {
 
             delete obj.invalid[`${y}_${x}`];
         }
+    }
+
+    obj.validationDuplicate = function() {
+        var cells = {};
+
+        for (var x = 0; x < obj.options.columns.length; x++) {
+            var column = obj.options.columns[x];
+            var validations = column.validations || {};
+
+            if (!validations.duplicate) {
+                continue;
+            }
+
+            cells[x] = cells[x] || [];
+
+            for (var y = 0; y < obj.options.data.length; y++) {
+                var row = obj.options.data[y];
+
+                if (row.options && (row.options.isParent || row.options.formula || row.options.isInitialize)) {
+                    continue;
+                }
+
+                var data = row[x];
+
+                if (data) {
+                    cells[x].push({
+                        y,
+                        data,
+                        name: column.fieldName || column.title
+                    });
+                }
+            }
+        }
+
+        Object.keys(cells).forEach(cellIndex => {
+            cells[cellIndex].forEach(row => {
+                var dupIndex = cells[cellIndex].findIndex((r, i) => r.data === row.data && r.y !== row.y);
+                var columnName = jexcel.getColumnNameFromId([ cellIndex, row.y ]);
+
+                if (dupIndex > -1) {
+                    row.duplicate = true;
+                    var text = obj.options.text.validation.duplicate || function() {};
+
+                    obj.invalidDuplicate[`${row.y}_${cellIndex}`] = true;
+
+                    if (!obj.invalid[`${row.y}_${cellIndex}`]) {
+                        obj.records[row.y][cellIndex].classList.add('jexcel_cell_error');
+                        obj.setComments(columnName, text(row.name));
+                    }
+                } else {
+                    row.duplicate = false;
+
+                    if (!row.duplicate && !obj.invalid[`${row.y}_${cellIndex}`]) {
+                        obj.records[row.y][cellIndex].classList.remove('jexcel_cell_error');
+                        obj.setComments(columnName, '');
+
+                        delete obj.invalidDuplicate[`${row.y}_${cellIndex}`];
+                    }
+                }
+            });
+        });
     }
 
     obj.validRequired = function(value) {
@@ -2404,14 +2468,6 @@ var jexcel = (function(el, options) {
                     }
                 }
             }
-            var column = obj.options.columns[x];
-            var row = obj.options.data[y];
-
-            if (row.options && (row.options.isParent || row.options.formula)) {
-                // Do nothing
-            } else {
-                obj.validation(column.fieldName || column.title, column.validations, value, x, y);
-            }
 
             // History format
             var record = {
@@ -2510,6 +2566,17 @@ var jexcel = (function(el, options) {
                     obj.options.onchange(el, (obj.records[y] && obj.records[y][x] ? obj.records[y][x] : null), x, y, value, record.oldValue);
                 }
             }
+        }
+
+        // validate cell
+        var column = obj.options.columns[x];
+        var row = obj.options.data[y];
+
+        if (row.options && (row.options.isParent || row.options.formula)) {
+            // Do nothing
+        } else {
+            obj.validation(column.fieldName || column.title, column.validations, value, x, y);
+            obj.validationDuplicate();
         }
 
         return record;
@@ -5946,15 +6013,23 @@ var jexcel = (function(el, options) {
     /**
      * Set cell read only
      */
-    obj.setReadonly = function(rowIndex, columnIndex) {
+    obj.setReadonly = function(rowIndex, columnIndex, isRemove = false) {
         for (var j = 0; j < obj.rows.length; j++) {
             for (var i = 0; i < obj.headers.length; i++) {
                 var cell = obj.records[j][i];
 
                 if (rowIndex !== undefined && columnIndex !== undefined && rowIndex === j && columnIndex === i) {
-                    cell.classList.add('readonly');
+                    if (isRemove) {
+                        cell.classList.remove('readonly');
+                    } else {
+                        cell.classList.add('readonly');
+                    }
                 } else if (rowIndex !== undefined && columnIndex === undefined && rowIndex === j) {
-                    cell.classList.add('readonly');
+                    if (isRemove) {
+                        cell.classList.remove('readonly');
+                    } else {
+                        cell.classList.add('readonly');
+                    }
                 }
             }
         }
