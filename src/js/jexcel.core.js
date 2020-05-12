@@ -988,6 +988,7 @@ var jexcel = (function(el, options) {
                 if (data) {
                     cells[x].push({
                         y,
+                        row,
                         data,
                         name: column.fieldName || column.title
                     });
@@ -997,7 +998,7 @@ var jexcel = (function(el, options) {
 
         Object.keys(cells).forEach(cellIndex => {
             cells[cellIndex].forEach(row => {
-                var dupIndex = cells[cellIndex].findIndex((r, i) => r.data === row.data && r.y !== row.y);
+                var dupIndex = cells[cellIndex].findIndex((r, i) => r.data === row.data && r.y !== row.y && row.row.origin.id !== r.row.origin.id);
                 var columnName = jexcel.getColumnNameFromId([ cellIndex, row.y ]);
 
                 if (dupIndex > -1) {
@@ -2547,6 +2548,14 @@ var jexcel = (function(el, options) {
         // validate cell
         var column = obj.options.columns[x];
         var row = obj.options.data[y];
+
+        var text = obj.records[y][x].innerText.trim();
+
+        if (column.suffix === '%' && text && text !== '') {
+            obj.records[y][x].classList.add('jexcel-suffix-percent');
+        } else {
+            obj.records[y][x].classList.remove('jexcel-suffix-percent');
+        }
 
         if (row.options && (row.options.isParent || row.options.formula)) {
             // Do nothing
@@ -7002,6 +7011,18 @@ var jexcel = (function(el, options) {
 
                     firstColumn.classList.add('jexcel_freezed');
                     firstColumn.style.left = obj.firstColumnPosition + 'px';
+                }
+
+                for (var e = 0; e < obj.options.columns.length; e++) {
+                    var col = obj.options.columns[e];
+
+                    var text = obj.records[i][e].innerText.trim();
+
+                    if (col.suffix === '%' && text && text !== '') {
+                        obj.records[i][e].classList.add('jexcel-suffix-percent');
+                    } else {
+                        obj.records[i][e].classList.remove('jexcel-suffix-percent');
+                    }
                 }
             }
         }, 0);
