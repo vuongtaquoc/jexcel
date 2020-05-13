@@ -220,7 +220,8 @@ var jexcel = (function(el, options) {
                 numberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
                 minNumberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
                 maxNumberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
-                duplicate: (name) => `${name} bị trùng đề nghị rà soát và kiểm tra lại`
+                duplicate: (name) => `${name} bị trùng đề nghị rà soát và kiểm tra lại`,
+                fieldNotFound: ({ name }) => `Không tìm thấy ${name}`
             }
         },
         // About message
@@ -859,7 +860,7 @@ var jexcel = (function(el, options) {
         }
     }
 
-    obj.validationCell = function(y, x, fieldName, rules) {
+    obj.validationCell = function(y, x, fieldName, rules, value) {
         var row = obj.options.data[y];
 
         if (row.options && (row.options.isParent || row.options.formula || row.options.isInitialize)) {
@@ -868,6 +869,10 @@ var jexcel = (function(el, options) {
 
         var column = obj.options.columns[x];
         var data = row[x];
+
+        if (rules.fieldNotFound) {
+            data = value;
+        }
 
         obj.validation(fieldName || column.fieldName || column.title, rules || column.validations, data, x, y);
     }
@@ -944,6 +949,10 @@ var jexcel = (function(el, options) {
 
         if (rules.maxNumberLengthByOtherField) {
             valid.maxNumberLengthByOtherField = obj.validMaxNumberLengthByOtherField(data, rules.maxNumberLengthByOtherField);
+        }
+
+        if (rules.fieldNotFound) {
+            valid.fieldNotFound = !!data;
         }
 
         if (rules.cardId) {
