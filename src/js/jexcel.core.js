@@ -1007,7 +1007,7 @@ var jexcel = (function(el, options) {
 
         Object.keys(cells).forEach(cellIndex => {
             cells[cellIndex].forEach(row => {
-                var dupIndex = cells[cellIndex].findIndex((r, i) => r.data === row.data && r.y !== row.y && row.row.origin.id !== r.row.origin.id);
+                var dupIndex = cells[cellIndex].findIndex((r, i) => r.data === row.data && r.y !== row.y && row.row.origin.id !== r.row.origin.id && row.row.options.parentKey === r.row.options.parentKey);
                 var columnName = jexcel.getColumnNameFromId([ cellIndex, row.y ]);
 
                 if (dupIndex > -1) {
