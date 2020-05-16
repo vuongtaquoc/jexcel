@@ -6053,6 +6053,16 @@ var jexcel = (function(el, options) {
         }
     }
 
+    obj.setReadonlyCell = function(rowIndex, columnIndex, isRemove = false) {
+        var cell = obj.records[rowIndex][columnIndex];
+
+        if (isRemove) {
+            cell.classList.remove('readonly');
+        } else {
+            cell.classList.add('readonly');
+        }
+    }
+
     obj.setReadonlyRowsTitle = function(rowIndexes, colIngnoreIndexes) {
         for (var j = 0; j < obj.rows.length; j++) {
             if (rowIndexes.indexOf(j) > -1) {
@@ -6074,6 +6084,28 @@ var jexcel = (function(el, options) {
                 }
             }
         }
+    }
+
+    obj.setCellClass = function(rowIndex, columnIndex, className, isRemove = false) {
+        var cell = obj.records[rowIndex][columnIndex];
+
+        if (isRemove) {
+            cell.classList.remove(className);
+        } else {
+            cell.classList.add(className);
+        }
+    }
+
+    obj.setReadonlyCellAndClear = function(rowIndex, columnIndex, isRemove = false) {
+        var cell = obj.records[rowIndex][columnIndex];
+
+        if (isRemove) {
+            cell.classList.remove('readonly');
+        } else {
+            cell.classList.add('readonly');
+        }
+
+        cell.innerHTML = '';
     }
 
     obj.setReadonlyRowsFormula = function(rowIndexes, colIngnoreIndexes) {
@@ -6839,6 +6871,7 @@ var jexcel = (function(el, options) {
                 if (!disallowItem && obj.options.allowInsertRow == true) {
                     items.push({
                         title:obj.options.text.insertANewRowBefore,
+                        shortcut:'Shift + N',
                         onclick:function() {
                             obj.insertRow(1, parseInt(y), 1);
                         }
@@ -6846,6 +6879,7 @@ var jexcel = (function(el, options) {
 
                     items.push({
                         title:obj.options.text.insertANewRowAfter,
+                        shortcut:'Ctrl + Alt + =',
                         onclick:function() {
                             obj.insertRow(1, parseInt(y));
                         }
