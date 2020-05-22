@@ -821,10 +821,21 @@ var jexcel = (function(el, options) {
     }
 
     obj.validationAllCells = function() {
+        var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
+        console.log('masterKeyIndex', masterKeyIndex);
+
         for (var y = 0; y < obj.options.data.length; y++) {
             var row = obj.options.data[y];
 
             if (row.options && (row.options.isParent || row.options.formula || row.options.isInitialize)) {
+                continue;
+            }
+
+            var masterKeyData = masterKeyIndex > -1 ? row[masterKeyIndex] : null;
+            console.log('masterKeyData', y, masterKeyIndex, masterKeyData);
+
+            if (!masterKeyData && masterKeyIndex > -1) {
+                obj.clearValidationRow(y, obj.options.columns.length);
                 continue;
             }
 
@@ -861,6 +872,12 @@ var jexcel = (function(el, options) {
         obj.setComments(columnName, '');
 
         delete obj.invalid[`${y}_${x}`];
+    }
+
+    obj.clearValidationRow = function(y, xNumbers) {
+        for (var x = 0; x < xNumbers; x++) {
+            obj.clearValidation(y, x);
+        }
     }
 
     obj.normalize = function(id) {
@@ -999,8 +1016,11 @@ var jexcel = (function(el, options) {
                 }
 
                 var data = row[x];
+                var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
+                var masterKeyData = masterKeyIndex > -1 ? row[masterKeyIndex] : null;
+                console.log('validationDuplicate', masterKeyIndex, masterKeyData)
 
-                if (data) {
+                if (data && masterKeyData) {
                     cells[x].push({
                         y,
                         row,
@@ -1013,7 +1033,12 @@ var jexcel = (function(el, options) {
 
         Object.keys(cells).forEach(cellIndex => {
             cells[cellIndex].forEach(row => {
-                var dupIndex = cells[cellIndex].findIndex((r, i) => r.data === row.data && r.y !== row.y && row.row.origin.id !== r.row.origin.id && row.row.options.parentKey === r.row.options.parentKey);
+                var dupIndex = cells[cellIndex].findIndex((r, i) => {
+                    const employeeId = row.row.origin.employeeId || row.row.origin.id;
+                    const checkedEmployeeId = r.row.origin.employeeId || r.row.origin.id;
+
+                    return r.data === row.data && r.y !== row.y && employeeId !== checkedEmployeeId;
+                });
                 var columnName = jexcel.getColumnNameFromId([ cellIndex, row.y ]);
 
                 if (dupIndex > -1) {
@@ -2567,6 +2592,9 @@ var jexcel = (function(el, options) {
         // validate cell
         var column = obj.options.columns[x];
         var row = obj.options.data[y];
+        var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
+        var masterKeyData = masterKeyIndex > -1 ? row[masterKeyIndex] : null;
+        console.log('XXX-masterKeyData: ', value, obj.options.columns, y, x, masterKeyIndex, masterKeyData)
 
         var text = obj.records[y][x].innerText.trim();
 
@@ -2579,7 +2607,11 @@ var jexcel = (function(el, options) {
         if (row.options && (row.options.isParent || row.options.formula)) {
             // Do nothing
         } else {
-            obj.validation(column.fieldName || column.title, column.validations, value, x, y);
+            if (masterKeyData) {
+                obj.validation(column.fieldName || column.title, column.validations, value, x, y);
+            } else {
+                obj.clearValidationRow(y, obj.options.columns.length);
+            }
             obj.validationDuplicate();
         }
 
