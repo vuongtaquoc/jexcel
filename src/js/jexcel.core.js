@@ -822,7 +822,6 @@ var jexcel = (function(el, options) {
 
     obj.validationAllCells = function() {
         var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
-        console.log('masterKeyIndex', masterKeyIndex);
 
         for (var y = 0; y < obj.options.data.length; y++) {
             var row = obj.options.data[y];
@@ -832,7 +831,6 @@ var jexcel = (function(el, options) {
             }
 
             var masterKeyData = masterKeyIndex > -1 ? row[masterKeyIndex] : null;
-            console.log('masterKeyData', y, masterKeyIndex, masterKeyData);
 
             if (!masterKeyData && masterKeyIndex > -1) {
                 obj.clearValidationRow(y, obj.options.columns.length);
@@ -891,6 +889,17 @@ var jexcel = (function(el, options) {
         }
 
         return id;
+    }
+
+    obj.validationRow = function(y) {
+        var row = obj.options.data[y];
+
+        for (var x = 0; x < obj.options.columns.length; x++) {
+            var column = obj.options.columns[x];
+            var data = row[x];
+
+            obj.validation(column.fieldName || column.title, column.validations, data, x, y);
+        }
     }
 
     obj.validation = function(title, rules, data, x, y) {
@@ -1018,7 +1027,6 @@ var jexcel = (function(el, options) {
                 var data = row[x];
                 var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
                 var masterKeyData = masterKeyIndex > -1 ? row[masterKeyIndex] : null;
-                console.log('validationDuplicate', masterKeyIndex, masterKeyData)
 
                 if (data && masterKeyData) {
                     cells[x].push({
@@ -1034,8 +1042,8 @@ var jexcel = (function(el, options) {
         Object.keys(cells).forEach(cellIndex => {
             cells[cellIndex].forEach(row => {
                 var dupIndex = cells[cellIndex].findIndex((r, i) => {
-                    const employeeId = row.row.origin.employeeId || row.row.origin.id;
-                    const checkedEmployeeId = r.row.origin.employeeId || r.row.origin.id;
+                    const employeeId = row.row.origin && (row.row.origin.employeeId || row.row.origin.id);
+                    const checkedEmployeeId = r.row.origin && (r.row.origin.employeeId || r.row.origin.id);
 
                     return r.data === row.data && r.y !== row.y && employeeId !== checkedEmployeeId;
                 });
@@ -1593,7 +1601,7 @@ var jexcel = (function(el, options) {
                     col.style.top = col.offsetTop - 1 + 'px';
                 }
             }
-        }, 0);
+        }, 50);
     }
 
     /**
@@ -2594,7 +2602,6 @@ var jexcel = (function(el, options) {
         var row = obj.options.data[y];
         var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
         var masterKeyData = masterKeyIndex > -1 ? row[masterKeyIndex] : null;
-        console.log('XXX-masterKeyData: ', value, obj.options.columns, y, x, masterKeyIndex, masterKeyData)
 
         var text = obj.records[y][x].innerText.trim();
 
@@ -2607,8 +2614,10 @@ var jexcel = (function(el, options) {
         if (row.options && (row.options.isParent || row.options.formula)) {
             // Do nothing
         } else {
+            console.log('xxx', value, masterKeyData, x, y, column)
             if (masterKeyData) {
-                obj.validation(column.fieldName || column.title, column.validations, value, x, y);
+                // obj.validation(column.fieldName || column.title, column.validations, value, x, y);
+                obj.validationRow(y);
             } else {
                 obj.clearValidationRow(y, obj.options.columns.length);
             }
@@ -7051,7 +7060,8 @@ var jexcel = (function(el, options) {
             var nestedRowCells2 = obj.thead.rows[1] ? obj.thead.rows[1].cells : null;
             var columnPositions = [];
 
-            if (freezeColumnIndex > 0) {for (var i = 0; i <= freezeColumnIndex; i++) {
+            if (freezeColumnIndex > 0) {
+                for (var i = 0; i <= freezeColumnIndex; i++) {
                     var column = obj.headers[i];
                     var position = columnPositions[i] = column ? column.offsetLeft - 1 : 0;
 
