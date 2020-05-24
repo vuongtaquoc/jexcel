@@ -1150,6 +1150,7 @@ var jexcel = (function(el, options) {
     }
 
     obj.validDuplicateOtherField = function(value, otherValue) {
+        console.log(value, otherValue)
         return value === otherValue;
     }
 
@@ -2638,7 +2639,6 @@ var jexcel = (function(el, options) {
         if (row.options && (row.options.isParent || row.options.formula)) {
             // Do nothing
         } else {
-            console.log('xxx', value, masterKeyData, x, y, column)
             if (masterKeyData) {
                 // obj.validation(column.fieldName || column.title, column.validations, value, x, y);
                 obj.validationRow(y);
