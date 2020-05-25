@@ -841,6 +841,12 @@ var jexcel = (function(el, options) {
                 var column = obj.options.columns[x];
                 var data = row[x];
 
+                var record = obj.records[y][x];
+
+                if (record.classList.contains('readonly')) {
+                    continue;
+                }
+
                 obj.validation(column.fieldName || column.title, column.validations, data, x, y);
             }
         }
@@ -897,6 +903,11 @@ var jexcel = (function(el, options) {
         for (var x = 0; x < obj.options.columns.length; x++) {
             var column = obj.options.columns[x];
             var data = row[x];
+            var record = obj.records[y][x];
+
+            if (record.classList.contains('readonly')) {
+                continue;
+            }
 
             obj.validation(column.fieldName || column.title, column.validations, data, x, y);
         }
@@ -1019,8 +1030,13 @@ var jexcel = (function(el, options) {
 
             for (var y = 0; y < obj.options.data.length; y++) {
                 var row = obj.options.data[y];
+                var record = obj.records[y][x];
 
                 if (row.options && (row.options.isParent || row.options.formula || row.options.isInitialize)) {
+                    continue;
+                }
+
+                if (record.classList.contains('readonly')) {
                     continue;
                 }
 
