@@ -844,6 +844,16 @@ var jexcel = (function(el, options) {
         return Object.keys(obj.invalid).length === 0;
     }
 
+    obj.getTableErrors = function() {
+        return Object.keys(obj.invalid).map(key => {
+            const [ row, col ] = key.split('_');
+            return {
+                y: Number(row) + 1,
+                x: Number(col) + 1
+            };
+        });
+    }
+
     obj.validationAllCells = function() {
         var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
 
@@ -1642,7 +1652,7 @@ var jexcel = (function(el, options) {
                     col.style.top = col.offsetTop - 1 + 'px';
                 }
             }
-        }, 50);
+        }, 100);
     }
 
     /**
