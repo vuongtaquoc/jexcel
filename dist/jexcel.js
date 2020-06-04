@@ -222,7 +222,9 @@ var jexcel = (function(el, options) {
                 maxNumberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
                 duplicate: (name) => `${name} bị trùng đề nghị rà soát và kiểm tra lại`,
                 fieldNotFound: ({ name }) => `Không tìm thấy ${name}`,
-                duplicateOtherField: ({ name, otherName }) => `${name} với ${otherName} phải giống nhau`
+                duplicateOtherField: ({ name, otherName }) => `${name} với ${otherName} phải giống nhau`,
+                lessThanNow: (name) => `${name} phải nhỏ hơn hoặc bằng ngày hiện tại`,
+                greaterThanNow: (name) => `${name} phải lớn hơn hoặc bằng ngày hiện tại`,
             }
         },
         // About message
@@ -959,7 +961,7 @@ var jexcel = (function(el, options) {
             valid.number = obj.validNumber(data);
         }
 
-        if (rules.min && rules.max) {
+        if (typeof rules.min === 'number' && typeof rules.max === 'number') {
             valid.minMax = obj.validMinMaxNumber(data, rules.min, rules.max);
         } else {
             if (rules.min) {
@@ -1009,6 +1011,14 @@ var jexcel = (function(el, options) {
 
         if (rules.cardId) {
             valid.cardId = obj.validCardId(data, 'peopleId') || obj.validCardId(data, 'cardId') || obj.validPassport(data);
+        }
+
+        if (rules.lessThanNow) {
+            valid.lessThanNow = obj.validLessThanNow(data);
+        }
+
+        if (rules.greaterThanNow) {
+            valid.greaterThanNow = obj.validGreaterThanNow(data);
         }
 
         // check valid
@@ -1132,7 +1142,7 @@ var jexcel = (function(el, options) {
     }
 
     obj.validNumber = function(value) {
-        return /^\d*$/.test(value);
+        return /^-?\d+\.?\d*$/.test(value);
     }
 
     obj.validNumberLength = function(value, length) {
@@ -1176,7 +1186,6 @@ var jexcel = (function(el, options) {
     }
 
     obj.validDuplicateOtherField = function(value, otherValue) {
-        console.log(value, otherValue)
         return value === otherValue;
     }
 
@@ -1238,6 +1247,44 @@ var jexcel = (function(el, options) {
         value = Number(value);
 
         return value >= min && value <= max;
+    }
+
+    obj.validLessThanNow = function(value) {
+        var dates = value.split('/');
+        var current = new Date();
+
+        if (dates.length === 1) {
+            return Number(dates[0]) <= current.getFullYear();
+        }
+
+        if (dates.length === 2) {
+            return Number(dates[0]) <= (current.getMonth() + 1) && Number(dates[1]) <= current.getFullYear();
+        }
+
+        if (dates.length === 3) {
+            return Number(dates[0]) <= current.getDate() && Number(dates[1]) <= (current.getMonth() + 1) && Number(dates[2]) <= current.getFullYear();
+        }
+
+        return false;
+    }
+
+    obj.validGreaterThanNow = function(value) {
+        var dates = value.split('/');
+        var current = new Date();
+
+        if (dates.length === 1) {
+            return dates[0] >= current.getFullYear();
+        }
+
+        if (dates.length === 2) {
+            return Number(dates[0]) >= (current.getMonth() + 1) && Number(dates[1]) >= current.getFullYear();
+        }
+
+        if (dates.length === 3) {
+            return Number(dates[0]) >= current.getDate() && Number(dates[1]) >= (current.getMonth() + 1) && Number(dates[2]) >= current.getFullYear();
+        }
+
+        return false;
     }
 
     obj.validCardId = function(id, type = 'peopleId') {
