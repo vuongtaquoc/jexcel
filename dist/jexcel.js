@@ -964,28 +964,28 @@ var jexcel = (function(el, options) {
         if (typeof rules.min === 'number' && typeof rules.max === 'number') {
             valid.minMax = obj.validMinMaxNumber(data, rules.min, rules.max);
         } else {
-            if (rules.min) {
+            if (typeof rules.min === 'number') {
                 valid.min = obj.validMinNumber(data, rules.min);
             }
 
-            if (rules.max) {
+            if (typeof rules.max === 'number') {
                 valid.max = obj.validMaxNumber(data, rules.max);
             }
         }
 
-        if (rules.minLength && rules.maxLength) {
+        if (typeof rules.minLength === 'number' && typeof rules.maxLength === 'number') {
             valid.minMaxLength = obj.validMinMaxLength(data, rules.minLength, rules.maxLength);
         } else {
-            if (rules.minLength) {
+            if (typeof rules.minLength === 'number') {
                 valid.minLength = obj.validMinLength(data, rules.minLength);
             }
 
-            if (rules.maxLength) {
+            if (typeof rules.maxLength === 'number') {
                 valid.maxLength = obj.validMaxLength(data, rules.maxLength);
             }
         }
 
-        if (rules.numberLength) {
+        if (typeof rules.numberLength === 'number') {
             valid.numberLength = obj.validNumberLength(data, rules.numberLength);
         }
 
@@ -1047,6 +1047,14 @@ var jexcel = (function(el, options) {
                 rule.max = rules.max;
             } else if (errorType === 'minMaxLength') {
                 rule.minLength = rules.minLength;
+                rule.maxLength = rules.maxLength;
+            } else if (errorType === 'min') {
+                rule.min = rules.min;
+            } else if (errorType === 'max') {
+                rule.max = rules.max;
+            } else if (errorType === 'minLength') {
+                rule.minLength = rules.minLength;
+            } else if (errorType === 'maxLength') {
                 rule.maxLength = rules.maxLength;
             }
 
