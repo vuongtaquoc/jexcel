@@ -743,3 +743,7 @@ table.jexcel > tbody > tr > td.jexcel_cell_error {
     display: inline-block;
     margin-left: 1px;
 }
+
+.jexcel > tbody > tr > td.jexcel_comments.jexcel_cell_error {
+    background-color: #F44336;
+}

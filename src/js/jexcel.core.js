@@ -201,6 +201,9 @@ var jexcel = (function(el, options) {
                 duplicateOtherField: ({ name, otherName }) => `${name} với ${otherName} phải giống nhau`,
                 lessThanNow: (name) => `${name} phải nhỏ hơn hoặc bằng ngày hiện tại`,
                 greaterThanNow: (name) => `${name} phải lớn hơn hoặc bằng ngày hiện tại`,
+                onlyCharacterNumber: (name) => `${name} phải là chữ hoặc số`,
+                onlyNumber: (name) => `${name} phải là số`,
+                onlyDecimalNumber: (name) => `${name} phải là số`
             }
         },
         // About message
@@ -997,6 +1000,18 @@ var jexcel = (function(el, options) {
             valid.greaterThanNow = obj.validGreaterThanNow(data);
         }
 
+        if (rules.onlyCharacterNumber) {
+            valid.onlyCharacterNumber = obj.validOnlyCharacterNumber(data);
+        }
+
+        if (rules.onlyNumber) {
+            valid.onlyNumber = obj.validOnlyNumber(data);
+        }
+
+        if (rules.onlyDecimalNumber) {
+            valid.onlyDecimalNumber = obj.validOnlyDecimalNumber(data);
+        }
+
         // check valid
         if (Object.values(valid).indexOf(false) > -1) {
             obj.setCellError(title, x, y, rules, valid, true);
@@ -1269,6 +1284,36 @@ var jexcel = (function(el, options) {
         }
 
         return false;
+    }
+
+    obj.validOnlyCharacterNumber = function(value) {
+        if (typeof value === 'string' && !value.length) {
+            return true;
+        }
+
+        var regex = /^[a-zA-Z0-9]+$/;
+
+        return regex.test(value);
+    }
+
+    obj.validOnlyNumber = function(value) {
+        if (typeof value === 'string' && !value.length) {
+            return true;
+        }
+
+        var regex = /^[0-9]*$/;
+
+        return regex.test(value);
+    }
+
+    obj.validOnlyDecimalNumber = function(value) {
+        if (typeof value === 'string' && !value.length) {
+            return true;
+        }
+
+        var regex = /^[0-9]+(\.[0-9]{1,2})?$/;
+
+        return regex.test(value);
     }
 
     obj.validCardId = function(id, type = 'peopleId') {
