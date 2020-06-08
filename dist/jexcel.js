@@ -893,8 +893,15 @@ var jexcel = (function(el, options) {
 
     obj.validationCell = function(y, x, fieldName, rules, value) {
         var row = obj.options.data[y];
+        var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
 
         if (row.options && (row.options.isParent || row.options.formula || row.options.isInitialize)) {
+            return;
+        }
+
+        var masterKeyData = masterKeyIndex > -1 ? row[masterKeyIndex] : null;
+        if (!masterKeyData && masterKeyIndex > -1) {
+            obj.clearValidationRow(y, obj.options.columns.length);
             return;
         }
 
@@ -1335,7 +1342,7 @@ var jexcel = (function(el, options) {
             return true;
         }
 
-        var regex = /^(\d*\.)?\d+$/;
+        var regex = /^[0-9]+(\.[0-9]{1,2})?$/;
 
         return regex.test(value);
     }
