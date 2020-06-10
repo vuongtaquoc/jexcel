@@ -1172,6 +1172,8 @@ var jexcel = (function(el, options) {
     }
 
     obj.validNumber = function(value) {
+        value = value.toString().split(' ').join('');
+
         return /^-?\d+\.?\d*$/.test(value);
     }
 
