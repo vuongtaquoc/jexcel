@@ -6322,6 +6322,25 @@ var jexcel = (function(el, options) {
         }
     }
 
+    obj.setReadonlyBlankRows = function(rowIndexes) {
+        for (var j = 0; j < obj.rows.length; j++) {
+            if (rowIndexes.indexOf(j) > -1) {
+                var row = obj.rows[j];
+
+                row.classList.add('row-blank-readonly');
+            }
+
+            for (var i = 0; i < obj.headers.length; i++) {
+                var cell = obj.records[j][i];
+
+                if (rowIndexes.indexOf(j) > -1) {
+                    cell.classList.add('readonly');
+                    cell.classList.add('cell-blank-readonly');
+                }
+            }
+        }
+    }
+
     obj.setTableSize = function(width, height) {
         if (width) {
             obj.content.style.width = width;
