@@ -24,6 +24,7 @@
 
     const table = jexcel(document.getElementById('spreadsheet'), {
         data: [],
+        allowAddEmployee: true,
         columns: [
             {
               type:'dropdown', title:'Category', width:'300', source:[ {'id':'1', 'name':'Fruits'}, {'id':'2', 'name':'Legumes'}, {'id':'3', 'name':'General Food'} ],
@@ -68,6 +69,9 @@
               }
             },
         ],
+        onaddemployee: function(y,x) {
+          console.log(y, x)
+        },
         onchange:function(instance, cell, c, r, value) {
             // if (c == 0) {
             //   var columnName = jexcel.getColumnNameFromId([c + 1, r]);

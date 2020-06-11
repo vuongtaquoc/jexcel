@@ -95,6 +95,8 @@ var jexcel = (function(el, options) {
         allowRenameColumn:true,
         // Allow comments
         allowComments:false,
+        // Allow insert employee
+        allowAddEmployee: false,
         // Global wrap
         wordWrap:false,
         // Image options
@@ -170,12 +172,14 @@ var jexcel = (function(el, options) {
         onchangemeta:null,
         onchangepage:null,
         ondoubleclickreadonly: null,
+        onaddemployee: null,
         // Customize any cell behavior
         updateTable:null,
         // Detach the HTML table when calling updateTable
         detachForUpdates: false,
         // Texts
         text:{
+            addEmployee: 'Thêm NLĐ',
             noRecordsFound: 'Không tìm thấy bản ghi',
             showingPage: 'Showing page {0} of {1} entries',
             show: 'Show ',
@@ -7078,6 +7082,19 @@ var jexcel = (function(el, options) {
                     }
                 }
 
+                var isBlankReadonly = e.target.classList.contains('cell-blank-readonly');
+
+                if (obj.options.allowAddEmployee && isBlankReadonly) {
+                    items.push({
+                        title: obj.options.text.addEmployee,
+                        onclick: function() {
+                            if (typeof obj.options.onaddemployee === 'function' && isBlankReadonly) {
+                                obj.options.onaddemployee(y, x);
+                            }
+                        }
+                    })
+                }
+
                 // Insert new row
                 if (!disallowItem && obj.options.allowInsertRow == true) {
                     items.push({
@@ -7327,6 +7344,7 @@ jexcel.timeControlLoading = null;
 
 jexcel.destroy = function(element, destroyEventHandlers) {
     if (element.jexcel) {
+        console.log(element.jexcel)
         element.jexcel.content.removeEventListener('scroll', element.jexcel.freezeColumn);
         element.removeEventListener("DOMMouseScroll", element.jexcel.scrollControls);
         element.removeEventListener("mousewheel", element.jexcel.scrollControls);
