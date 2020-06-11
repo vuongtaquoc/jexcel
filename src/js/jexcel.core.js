@@ -145,6 +145,7 @@ var jexcel = (function(el, options) {
         onchangestyle:null,
         onchangemeta:null,
         onchangepage:null,
+        ondoubleclickreadonly: null,
         // Customize any cell behavior
         updateTable:null,
         // Detach the HTML table when calling updateTable
@@ -7057,7 +7058,7 @@ var jexcel = (function(el, options) {
                 if (!disallowItem && obj.options.allowInsertRow == true) {
                     items.push({
                         title:obj.options.text.insertANewRowBefore,
-                        shortcut:'Shift + N',
+                        shortcut:'Ctrl + 1',
                         onclick:function() {
                             obj.insertRow(1, parseInt(y), 1);
                         }
@@ -7065,7 +7066,7 @@ var jexcel = (function(el, options) {
 
                     items.push({
                         title:obj.options.text.insertANewRowAfter,
-                        shortcut:'Ctrl + Alt + =',
+                        shortcut:'Ctrl + Shift + 1',
                         onclick:function() {
                             obj.insertRow(1, parseInt(y));
                         }
@@ -7469,6 +7470,21 @@ jexcel.keyDownControls = function(e) {
                     jexcel.current.right();
                 }
                 e.preventDefault();
+            } else if (e.which == 49) {
+                // Ctrl + 1 or Ctrl + Shift + 1
+                // Insert new row before
+                var selectedRows = jexcel.current.getSelectedRows(true);
+
+                if ((e.ctrlKey || e.metaKey) && ! e.shiftKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    jexcel.current.insertRow(1, parseInt(selectedRows[0]), 1);
+                } else if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+                    // Insert new row after
+                    e.preventDefault();
+                    e.stopPropagation();
+                    jexcel.current.insertRow(1, parseInt(selectedRows[0]));
+                }
             } else {
                 if ((e.ctrlKey || e.metaKey) && ! e.shiftKey) {
                     if (e.which == 65) {
@@ -8095,6 +8111,10 @@ jexcel.doubleClickControls = function(e) {
                 var y2 = jexcel.current.records.length - 1
                 // Execute copy
                 jexcel.current.copyData(jexcel.current.records[y1][x1], jexcel.current.records[y2][x2]);
+            }
+        } else if (e.target.classList.contains('cell-blank-readonly')) {
+            if (typeof(jexcel.current.options.ondoubleclickreadonly) == 'function') {
+                jexcel.current.options.ondoubleclickreadonly(e.target);
             }
         } else {
             // Get table
