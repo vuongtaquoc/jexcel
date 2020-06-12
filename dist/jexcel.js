@@ -97,6 +97,8 @@ var jexcel = (function(el, options) {
         allowComments:false,
         // Allow insert employee
         allowAddEmployee: false,
+        // Allow sort
+        allowSort: false,
         // Global wrap
         wordWrap:false,
         // Image options
@@ -173,6 +175,8 @@ var jexcel = (function(el, options) {
         onchangepage:null,
         ondoubleclickreadonly: null,
         onaddemployee: null,
+        onsorttop: null,
+        onsortdown: null,
         // Customize any cell behavior
         updateTable:null,
         // Detach the HTML table when calling updateTable
@@ -195,6 +199,8 @@ var jexcel = (function(el, options) {
             insertANewRowBefore: 'Thêm dòng mới phía trước',
             insertANewRowAfter: 'Thêm dòng mới phía sau',
             deleteSelectedRows: 'Xóa dòng đang chọn',
+            sortTop: 'Di chuyển lên trên',
+            sortDown: 'Di chuyển xuống dưới',
             editComments: 'Edit comments',
             addComments: 'Add comments',
             comments: 'Comments',
@@ -7114,6 +7120,52 @@ var jexcel = (function(el, options) {
                     });
                 }
 
+                // sort
+                if (!disallowItem && obj.options.allowSort) {
+                    var beforeRow = obj.rows[Number(y) - 1];
+                    var afterRow = obj.rows[Number(y) + 1];
+                    var disabledSortTop = false;
+                    var disabledSortDown = false;
+
+                    if (!beforeRow) {
+                        disabledSortTop = true;
+                    } else {
+                        if (beforeRow.classList.contains('row-readonly')) {
+                            disabledSortTop = true;
+                        }
+                    }
+
+                    if (!afterRow) {
+                        disabledSortDown = true;
+                    } else {
+                        if (afterRow.classList.contains('row-readonly')) {
+                            disabledSortDown = true;
+                        }
+                    }
+
+                    if (!disabledSortTop) {
+                        items.push({
+                            title:obj.options.text.sortTop,
+                            onclick:function() {
+                                if (typeof obj.options.onsorttop === 'function') {
+                                    obj.options.onsorttop(obj.records[y][x], Number(y), Number(x));
+                                }
+                            }
+                        });
+                    }
+
+                    if (!disabledSortDown) {
+                        items.push({
+                            title:obj.options.text.sortDown,
+                            onclick:function() {
+                                if (typeof obj.options.onsortdown === 'function') {
+                                    obj.options.onsortdown(obj.records[y][x], Number(y), Number(x));
+                                }
+                            }
+                        });
+                    }
+                }
+
                 if (!disallowItem && obj.options.allowDeleteRow == true) {
                     items.push({
                         title:obj.options.text.deleteSelectedRows,
@@ -7344,7 +7396,6 @@ jexcel.timeControlLoading = null;
 
 jexcel.destroy = function(element, destroyEventHandlers) {
     if (element.jexcel) {
-        console.log(element.jexcel)
         element.jexcel.content.removeEventListener('scroll', element.jexcel.freezeColumn);
         element.removeEventListener("DOMMouseScroll", element.jexcel.scrollControls);
         element.removeEventListener("mousewheel", element.jexcel.scrollControls);

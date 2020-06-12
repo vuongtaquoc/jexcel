@@ -25,6 +25,7 @@
     const table = jexcel(document.getElementById('spreadsheet'), {
         data: [],
         allowAddEmployee: true,
+        allowSort: true,
         columns: [
             {
               type:'dropdown', title:'Category', width:'300', source:[ {'id':'1', 'name':'Fruits'}, {'id':'2', 'name':'Legumes'}, {'id':'3', 'name':'General Food'} ],
@@ -71,6 +72,12 @@
         ],
         onaddemployee: function(y,x) {
           console.log(y, x)
+        },
+        onsorttop: function(el, y, x) {
+          console.log('top')
+        },
+        onsortdown: function(el, y, x) {
+          console.log('down')
         },
         onchange:function(instance, cell, c, r, value) {
             // if (c == 0) {
