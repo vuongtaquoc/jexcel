@@ -214,7 +214,8 @@ var jexcel = (function(el, options) {
                 greaterThanNow: (name) => `${name} phải lớn hơn hoặc bằng ngày hiện tại`,
                 onlyCharacterNumber: (name) => `${name} phải là chữ hoặc số`,
                 onlyNumber: (name) => `${name} phải là số`,
-                onlyDecimalNumber: (name) => `${name} phải là số`
+                onlyDecimalNumber: (name) => `${name} phải là số`,
+                lessThan: ({ name }) => name
             }
         },
         // About message
@@ -837,13 +838,22 @@ var jexcel = (function(el, options) {
     }
 
     obj.getTableErrors = function() {
-        return Object.keys(obj.invalid).map(key => {
+        var errors = Object.keys(obj.invalid).map(key => {
             const [ row, col ] = key.split('_');
             return {
                 y: Number(row) + 1,
                 x: Number(col) + 1
             };
         });
+
+        errors.sort((error1, error2) => {
+            if (error1.y > error2.y) return 1;
+            if (error1.y < error2.y) return -1;
+            if (error1.x > error2.x) return 1;
+            if (error1.x < error2.x) return -1;
+        });
+
+        return errors;
     }
 
     obj.validationAllCells = function() {
@@ -1004,6 +1014,10 @@ var jexcel = (function(el, options) {
 
         if (rules.fieldNotFound) {
             valid.fieldNotFound = !!data;
+        }
+
+        if (rules.lessThan) {
+            valid.lessThan = false;
         }
 
         if (rules.cardId) {
@@ -1268,9 +1282,28 @@ var jexcel = (function(el, options) {
         return value >= min && value <= max;
     }
 
+    obj.getDateNow = function() {
+        var now = new Date();
+        var credentials = JSON.parse(localStorage.getItem('CREDENTIALS') || '{}');
+        var currentDate = credentials.currentDate;
+
+        now.setSeconds(0);
+        now.setUTCMilliseconds(0);
+
+        if (currentDate) {
+            var [ day, month, year ] = currentDate.split('/');
+
+            now.setDate(day);
+            now.setMonth(Number(month) - 1);
+            now.setFullYear(year);
+        }
+
+        return now;
+    }
+
     obj.validLessThanNow = function(value) {
         var dates = value.split('/');
-        var current = new Date();
+        var current = obj.getDateNow();
 
         if (dates.length === 1) {
             return Number(dates[0]) <= current.getFullYear();
@@ -1289,7 +1322,7 @@ var jexcel = (function(el, options) {
 
     obj.validGreaterThanNow = function(value) {
         var dates = value.split('/');
-        var current = new Date();
+        var current = obj.getDateNow();
 
         if (dates.length === 1) {
             return dates[0] >= current.getFullYear();
