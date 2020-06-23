@@ -69,6 +69,12 @@
                 max: 100
               }
             },
+            {
+              type: 'calendar', title:'cc', width:'100',
+              options: {
+                format: 'DD/MM/YYYY'
+              }
+            },
         ],
         onaddemployee: function(y,x) {
           console.log(y, x)
@@ -91,7 +97,7 @@
     table.setData(data2);
     // table.setReadonlyRowsTitle([0], [])
     console.log(table.isTableValid())
-    table.setReadonlyBlankRows([0, 1]);
+    // table.setReadonlyBlankRows([0, 1]);
 
     addData.addEventListener('click', () => {
       // data2.push([]);

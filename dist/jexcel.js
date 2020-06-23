@@ -239,7 +239,7 @@ var jexcel = (function(el, options) {
                 onlyCharacterNumber: (name) => `${name} phải là chữ hoặc số`,
                 onlyNumber: (name) => `${name} phải là số`,
                 onlyDecimalNumber: (name) => `${name} phải là số`,
-                lessThan: ({ name }) => name
+                lessThan: ({ message }) => message
             }
         },
         // About message
@@ -848,6 +848,7 @@ var jexcel = (function(el, options) {
         obj.updateFreezeColumn();
 
         // validation
+        obj.invalid = {};
         obj.validationAllCells();
         obj.validationDuplicate();
     }
@@ -2769,6 +2770,7 @@ var jexcel = (function(el, options) {
                     if (('' + value).substr(0,1) == '='  && obj.options.parseFormulas == true) {
                         value = obj.executeFormula(value, x, y);
                     }
+
                     if (obj.options.columns[x].mask) {
                         var decimal = obj.options.columns[x].decimal || '.';
                         value = '' + jSuites.mask.run(value, obj.options.columns[x].mask, decimal);
@@ -2828,6 +2830,19 @@ var jexcel = (function(el, options) {
         }
 
         return record;
+    }
+
+    obj.runMask = function(value, mask) {
+        var decimal = '.';
+
+        return '' + jSuites.mask.run(value, mask, decimal);
+    }
+
+    obj.formatCalendar = function(value, format) {
+        var formatted = jSuites.calendar.extractDateFromString(value, format);
+
+        // Create calendar cell
+        return jSuites.calendar.getDateString(formatted ? formatted : value, format);
     }
 
     /**
@@ -7179,6 +7194,7 @@ var jexcel = (function(el, options) {
                     if (!disabledSortTop) {
                         items.push({
                             title:obj.options.text.sortTop,
+                            shortcut:'Ctrl + Up',
                             onclick:function() {
                                 if (typeof obj.options.onsorttop === 'function') {
                                     obj.options.onsorttop(obj.records[y][x], Number(y), Number(x));
@@ -7190,6 +7206,7 @@ var jexcel = (function(el, options) {
                     if (!disabledSortDown) {
                         items.push({
                             title:obj.options.text.sortDown,
+                            shortcut:'Ctrl + Down',
                             onclick:function() {
                                 if (typeof obj.options.onsortdown === 'function') {
                                     obj.options.onsortdown(obj.records[y][x], Number(y), Number(x));
@@ -7525,10 +7542,50 @@ jexcel.keyDownControls = function(e) {
                 jexcel.current.right(e.shiftKey, e.ctrlKey);
                 e.preventDefault();
             } else if (e.which == 38) {
-                jexcel.current.up(e.shiftKey, e.ctrlKey);
+                if (e.ctrlKey || e.metaKey) {
+                    if (!e.shiftKey) {
+                        var selectedRow = jexcel.current.getSelectedRows(true)[0];
+                        var beforeRow = jexcel.current.rows[Number(selectedRow) - 1];
+                        var disabledSortTop = false;
+
+                        if (!beforeRow) {
+                            disabledSortTop = true;
+                        } else {
+                            if (beforeRow.classList.contains('row-readonly')) {
+                                disabledSortTop = true;
+                            }
+                        }
+
+                        if (!disabledSortTop && typeof jexcel.current.options.onsorttop === 'function') {
+                            jexcel.current.options.onsorttop(null, Number(selectedRow));
+                        }
+                    }
+                } else {
+                    jexcel.current.up(e.shiftKey, e.ctrlKey);
+                }
                 e.preventDefault();
             } else if (e.which == 40) {
-                jexcel.current.down(e.shiftKey, e.ctrlKey);
+                if (e.ctrlKey || e.metaKey) {
+                    if (!e.shiftKey) {
+                        var selectedRow = jexcel.current.getSelectedRows(true)[0];
+                        var afterRow = jexcel.current.rows[Number(selectedRow) + 1];
+                        var disabledSortDown = false;
+
+                        if (!afterRow) {
+                            disabledSortDown = true;
+                        } else {
+                            if (afterRow.classList.contains('row-readonly')) {
+                                disabledSortDown = true;
+                            }
+                        }
+
+                        if (!disabledSortDown && typeof jexcel.current.options.onsortdown === 'function') {
+                            jexcel.current.options.onsortdown(null, Number(selectedRow));
+                        }
+                    }
+                } else {
+                    jexcel.current.down(e.shiftKey, e.ctrlKey);
+                }
                 e.preventDefault();
             } else if (e.which == 36) {
                 jexcel.current.content.scrollLeft = 0;
