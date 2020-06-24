@@ -2212,6 +2212,7 @@ var jexcel = (function(el, options) {
                         var editor = createEditor('div');
                         var options = {
                             data: source,
+                            url: '/jsuites/large',
                             multiple: obj.options.columns[x].multiple ? true : false,
                             autocomplete: obj.options.columns[x].autocomplete || obj.options.columns[x].type == 'autocomplete' ? true : false,
                             opened:true,
@@ -2219,6 +2220,9 @@ var jexcel = (function(el, options) {
                             width:'100%',
                             height:editor.style.minHeight,
                             position: (obj.options.tableOverflow == true || obj.options.fullscreen == true) ? true : false,
+                            onchange: function(el,val) {
+                                console.log(val)
+                            },
                             onclose:function() {
                                 obj.closeEditor(cell, true);
                             }
