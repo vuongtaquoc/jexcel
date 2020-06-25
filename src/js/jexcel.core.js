@@ -2322,6 +2322,17 @@ var jexcel = (function(el, options) {
         }
     }
 
+    obj.updateAutoComplete = function(x, y, options) {
+        var cell = obj.records[y][x];
+        var value = obj.options.data[y][x];
+
+        const option = options.find(o => o.id === value);
+
+        if (option) {
+            cell.innerHTML = option.name;
+        }
+    }
+
     /**
      * Close the editor and save the information
      *
