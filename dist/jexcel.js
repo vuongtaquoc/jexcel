@@ -1203,6 +1203,10 @@ var jexcel = (function(el, options) {
     }
 
     obj.validNumber = function(value) {
+        if (value === '' || value === null || typeof value === 'undefined') {
+            return true;
+        }
+
         value = value.toString().split(' ').join('');
 
         return /^-?\d+\.?\d*$/.test(value);
