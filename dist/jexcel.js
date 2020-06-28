@@ -223,9 +223,9 @@ var jexcel = (function(el, options) {
                 min: (name, {min}) => `${name} phải lớn hơn hoặc bằng ${min}`,
                 max: (name, {max}) => `${name} phải nhỏ hơn hoặc bằng ${max}`,
                 minMax: (name, {min, max}) => `${name} phải nằm trong khoảng từ ${min} đến ${max}`,
-                minLength: (name, {min}) => `${name} phải nhiều hơn hoặc bằng ${minLength} ký tự`,
-                maxLength: (name, {max}) => `${name} phải ít hơn hoặc bằng ${maxLength} ký tự`,
-                minMaxLength: (name, {min, max}) => `${name} phải từ ${minLength} đến ${maxLength} ký tự`,
+                minLength: (name, {minLength}) => `${name} phải nhiều hơn hoặc bằng ${minLength} ký tự`,
+                maxLength: (name, {maxLength}) => `${name} phải ít hơn hoặc bằng ${maxLength} ký tự`,
+                minMaxLength: (name, {minLength, maxLength}) => `${name} phải từ ${minLength} đến ${maxLength} ký tự`,
                 cardId: (name) => `${name} phải chứa 9 ký tự số hoặc 12 ký tự số hoặc 8 ký tự trong đó 7 ký tự cuối là số`,
                 numberLength: (name, { numberLength }) => `${name} là phải chuỗi ${ numberLength } ký tự số`,
                 numberLengthByOtherField: ({ name, otherField }) => `${name} không hợp lệ với ${otherField}`,
@@ -234,6 +234,7 @@ var jexcel = (function(el, options) {
                 duplicate: (name) => `${name} bị trùng đề nghị rà soát và kiểm tra lại`,
                 fieldNotFound: ({ name }) => `Không tìm thấy ${name}`,
                 duplicateOtherField: ({ name, otherName }) => `${name} với ${otherName} phải giống nhau`,
+                differenceOtherField: ({ name, otherName }) => `${name} với ${otherName} phải khác nhau`,
                 lessThanNow: (name) => `${name} phải nhỏ hơn hoặc bằng ngày hiện tại`,
                 greaterThanNow: (name) => `${name} phải lớn hơn hoặc bằng ngày hiện tại`,
                 onlyCharacterNumber: (name) => `${name} phải là chữ hoặc số`,
@@ -1037,6 +1038,10 @@ var jexcel = (function(el, options) {
             valid.duplicateOtherField = obj.validDuplicateOtherField(data, rules.duplicateOtherField);
         }
 
+        if (rules.differenceOtherField) {
+            valid.differenceOtherField = obj.validDifferenceOtherField(data, rules.differenceOtherField);
+        }
+
         if (rules.fieldNotFound) {
             valid.fieldNotFound = !!data;
         }
@@ -1247,6 +1252,10 @@ var jexcel = (function(el, options) {
         return value === otherValue;
     }
 
+    obj.validDifferenceOtherField = function(valud, otherValue) {
+        return value !== otherValue;
+    }
+
     obj.validMinLength = function(value, minLength) {
         if (value === null || typeof value === 'undefined') {
             return false;
@@ -1326,6 +1335,27 @@ var jexcel = (function(el, options) {
         return now;
     }
 
+    obj.getDateByString = function(year, month, day) {
+        var date = new Date();
+
+        if (year) {
+            date.setFullYear(year);
+        }
+
+        if (month) {
+            date.setMonth(Number(month) - 1);
+        }
+
+        if (day) {
+            date.setDate(day);
+        }
+
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+
+        return date;
+    }
+
     obj.validLessThanNow = function(value) {
         var dates = value.split('/');
         var current = obj.getDateNow();
@@ -1335,11 +1365,13 @@ var jexcel = (function(el, options) {
         }
 
         if (dates.length === 2) {
-            return Number(dates[0]) <= (current.getMonth() + 1) && Number(dates[1]) <= current.getFullYear();
+            return Number(dates[1]) < current.getFullYear() || (Number(dates[0]) <= (current.getMonth() + 1) && Number(dates[1]) <= current.getFullYear());
         }
 
         if (dates.length === 3) {
-            return Number(dates[0]) <= current.getDate() && Number(dates[1]) <= (current.getMonth() + 1) && Number(dates[2]) <= current.getFullYear();
+            var date = obj.getDateByString(dates[2], dates[1], dates[0]);
+
+            return date.getTime() <= current.getTime();
         }
 
         return false;
@@ -1354,11 +1386,13 @@ var jexcel = (function(el, options) {
         }
 
         if (dates.length === 2) {
-            return Number(dates[0]) >= (current.getMonth() + 1) && Number(dates[1]) >= current.getFullYear();
+            return Number(dates[1]) > current.getFullYear() || (Number(dates[0]) >= (current.getMonth() + 1) && Number(dates[1]) >= current.getFullYear());
         }
 
         if (dates.length === 3) {
-            return Number(dates[0]) >= current.getDate() && Number(dates[1]) >= (current.getMonth() + 1) && Number(dates[2]) >= current.getFullYear();
+            var date = obj.getDateByString(dates[2], dates[1], dates[0]);
+
+            return date.getTime() >= current.getTime();
         }
 
         return false;
@@ -1682,9 +1716,13 @@ var jexcel = (function(el, options) {
             if ((''+value).substr(0,1) == '=' && obj.options.parseFormulas == true) {
                 value = obj.executeFormula(value, i, j)
             }
-            if (obj.options.columns[i].mask) {
-                var decimal = obj.options.columns[i].decimal || '.';
-                value = '' + jSuites.mask.run(value, obj.options.columns[i].mask, decimal);
+            // if (obj.options.columns[i].mask) {
+            //     // var decimal = obj.options.columns[i].decimal || '.';
+            //     // value = '' + jSuites.mask.run(value, obj.options.columns[i].mask, decimal);
+            //     value = obj.options.columns[i].mask(value);
+            // }
+            if (obj.options.columns[i].format) {
+                value = obj.options.columns[i].format(value);
             }
 
             td.innerHTML = value === '' ? '&nbsp;' : value;
@@ -2309,9 +2347,9 @@ var jexcel = (function(el, options) {
                     } else {
                         var editor = createEditor('input');
                         // Mask
-                        if (obj.options.columns[x].mask) {
-                            editor.setAttribute('data-mask', obj.options.columns[x].mask);
-                        }
+                        // if (obj.options.columns[x].mask) {
+                        //     editor.setAttribute('data-mask', obj.options.columns[x].mask);
+                        // }
                     }
 
                     editor.value = value;
@@ -2782,9 +2820,13 @@ var jexcel = (function(el, options) {
                         value = obj.executeFormula(value, x, y);
                     }
 
-                    if (obj.options.columns[x].mask) {
-                        var decimal = obj.options.columns[x].decimal || '.';
-                        value = '' + jSuites.mask.run(value, obj.options.columns[x].mask, decimal);
+                    // if (obj.options.columns[x].mask) {
+                    //     // var decimal = obj.options.columns[x].decimal || '.';
+                    //     // value = '' + jSuites.mask.run(value, obj.options.columns[x].mask, decimal);
+                    //     value = obj.options.columns[i].mask(value);
+                    // }
+                    if (obj.options.columns[x].format) {
+                        value = obj.options.columns[x].format(value);
                     }
                     obj.records[y][x].innerHTML = value;
 
