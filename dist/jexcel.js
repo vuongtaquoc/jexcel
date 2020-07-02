@@ -220,6 +220,7 @@ var jexcel = (function(el, options) {
             validation: {
                 required: (name) => `${name} không được để trống`,
                 number: (name) => `${name} phải là số`,
+                phone: (name) => `Số điện thoại không đúng định dạng`,
                 min: (name, {min}) => `${name} phải lớn hơn hoặc bằng ${min}`,
                 max: (name, {max}) => `${name} phải nhỏ hơn hoặc bằng ${max}`,
                 minMax: (name, {min, max}) => `${name} phải nằm trong khoảng từ ${min} đến ${max}`,
@@ -240,7 +241,8 @@ var jexcel = (function(el, options) {
                 onlyCharacterNumber: (name) => `${name} phải là chữ hoặc số`,
                 onlyNumber: (name) => `${name} phải là số`,
                 onlyDecimalNumber: (name) => `${name} phải là số`,
-                lessThan: ({ message }) => message
+                lessThan: ({ message }) => message,
+                duplicateUserFields: (name, rules) => `Thông tin không khớp với khai báo thông tin NLĐ này`
             }
         },
         // About message
@@ -1074,6 +1076,14 @@ var jexcel = (function(el, options) {
             valid.onlyDecimalNumber = obj.validOnlyDecimalNumber(data);
         }
 
+        if (rules.duplicateUserFields) {
+            valid.duplicateUserFields = obj.validDuplicateUserFields(data, obj.options.data[y], rules.duplicateUserFields);
+        }
+
+        if (rules.phone) {
+            valid.phone = obj.validPhone(data);
+        }
+
         // check valid
         if (Object.values(valid).indexOf(false) > -1) {
             obj.setCellError(title, x, y, rules, valid, true);
@@ -1087,7 +1097,12 @@ var jexcel = (function(el, options) {
         var record = obj.records[y][x];
 
         if (isError) {
-            record.classList.add('jexcel_cell_error');
+            if (rules.duplicateUserFields) {
+                record.classList.add('jexcel_cell_warning');
+            } else {
+                record.classList.add('jexcel_cell_error');
+            }
+
             obj.invalid[`${y}_${x}`] = true;
 
             var invalidIndex = Object.values(valid).indexOf(false);
@@ -1114,6 +1129,7 @@ var jexcel = (function(el, options) {
             obj.setComments(columnName, text(title, rule));
         } else {
             record.classList.remove('jexcel_cell_error');
+            record.classList.remove('jexcel_cell_warning');
             obj.setComments(columnName, '');
 
             delete obj.invalid[`${y}_${x}`];
@@ -1212,6 +1228,16 @@ var jexcel = (function(el, options) {
         return /^-?\d+\.?\d*$/.test(value);
     }
 
+    obj.validPhone = function(value) {
+        if (value === '' || value === null || typeof value === 'undefined') {
+            return true;
+        }
+
+        value = value.toString().split(' ').join('');
+
+        return /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/.test(value);
+    }
+
     obj.validNumberLength = function(value, length) {
         if (!obj.validNumber(value)) {
             return false;
@@ -1256,8 +1282,35 @@ var jexcel = (function(el, options) {
         return value === otherValue;
     }
 
-    obj.validDifferenceOtherField = function(valud, otherValue) {
+    obj.validDifferenceOtherField = function(value, otherValue) {
         return value !== otherValue;
+    }
+
+    obj.validDuplicateUserFields = function(value, row, field) {
+        if (!value) {
+            return true;
+        }
+
+        var isMySelf = true;
+        var checkFields = field.check || [];
+
+        for (var i = 0; i < checkFields.length; i++) {
+            var key = checkFields[i];
+            var index = obj.options.columns.findIndex(c => c.key === key);
+
+            if (row[index] === row.origin[key]) {
+                isMySelf = true;
+            } else {
+                isMySelf = false;
+                break;
+            }
+        }
+
+        if (!isMySelf) {
+            return true;
+        }
+
+        return row.origin[field.primary] === value;
     }
 
     obj.validMinLength = function(value, minLength) {
