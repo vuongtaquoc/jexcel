@@ -1100,7 +1100,7 @@ var jexcel = (function(el, options) {
         var record = obj.records[y][x];
 
         if (isError) {
-            if (!valid.duplicateUserFields) {
+            if (rules.duplicateUserFields && !valid.duplicateUserFields) {
                 record.classList.add('jexcel_cell_warning');
             }
 
