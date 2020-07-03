@@ -177,6 +177,7 @@ var jexcel = (function(el, options) {
         onaddemployee: null,
         onsorttop: null,
         onsortdown: null,
+        ondifference: null,
         // Customize any cell behavior
         updateTable:null,
         // Detach the HTML table when calling updateTable
@@ -1078,6 +1079,8 @@ var jexcel = (function(el, options) {
 
         if (rules.duplicateUserFields) {
             valid.duplicateUserFields = obj.validDuplicateUserFields(data, obj.options.data[y], rules.duplicateUserFields);
+
+            obj.options.ondifference && obj.options.ondifference(!valid.duplicateUserFields, data, obj.options.data[y], rules.duplicateUserFields);
         }
 
         if (rules.phone) {
@@ -1097,11 +1100,11 @@ var jexcel = (function(el, options) {
         var record = obj.records[y][x];
 
         if (isError) {
-            if (rules.duplicateUserFields) {
+            if (!valid.duplicateUserFields) {
                 record.classList.add('jexcel_cell_warning');
-            } else {
-                record.classList.add('jexcel_cell_error');
             }
+
+            record.classList.add('jexcel_cell_error');
 
             obj.invalid[`${y}_${x}`] = true;
 
@@ -1508,41 +1511,19 @@ var jexcel = (function(el, options) {
     }
 
     obj.validPassport = function(id) {
-        var isChecksumValid, isFormatValid, isLengthValid;
+        var isFormatValid, isLengthValid;
+        var regex = /^([A-Z a-z]){1}([0-9]){7}$/;
 
         isLengthValid = function isLengthValid(id) {
           return id.length === 8;
         };
 
         isFormatValid = function isFormatValid(id) {
-          return /^[A-Z][12][0-9]{6}$/.test(id);
-        };
-
-        isChecksumValid = function isChecksumValid(id) {
-          var _char, i, idLen, idTail, len, letterIndex, letters, remainder, weight, weightedSum;
-
-          idLen = id.length; // Each letter represents a value from [10..35]
-
-          letters = 'ABCDEFGHJKLMNPQRSTUVXYWZIO';
-          letterIndex = letters.indexOf(id[0]);
-          weightedSum = Math.floor(letterIndex / 8 + 1) + letterIndex * (idLen - 1);
-          idTail = id.slice(1); // Drop the letter
-
-          weight = idLen - 2; // Minus letter digit and check digit
-
-          for (i = 0, len = idTail.length; i < len; i++) {
-            _char = idTail[i];
-            weightedSum += +_char * weight;
-            weight--;
-          } // Note: the check digit of 'id' is weighted 0
-
-
-          remainder = (weightedSum + +id.slice(-1)) % 8;
-          return remainder === 0;
+          return regex.test(id);
         };
 
         id = obj.normalize(id);
-        return isLengthValid(id) && isFormatValid(id) && isChecksumValid(id);
+        return isLengthValid(id) && isFormatValid(id);
       }
 
     /**
