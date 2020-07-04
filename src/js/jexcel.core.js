@@ -2405,7 +2405,7 @@ var jexcel = (function(el, options) {
         const option = options.find(o => o.id === value);
 
         if (option) {
-            cell.innerHTML = option.name;
+            cell.innerHTML = option.shortName || option.name;
         }
     }
 
@@ -6957,7 +6957,7 @@ var jexcel = (function(el, options) {
 
             for (var i = 0; i < source.length; i++) {
                 if (typeof(source[i]) == 'object') {
-                    combo[source[i].id] = source[i].name;
+                    combo[source[i].id] = source[i].shortName || source[i].name;
                 } else {
                     combo[source[i]] = source[i];
                 }
