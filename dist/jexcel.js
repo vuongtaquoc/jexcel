@@ -1733,6 +1733,9 @@ var jexcel = (function(el, options) {
         } else if (obj.options.columns[i].type == 'dropdown' || obj.options.columns[i].type == 'autocomplete') {
             // Create dropdown cell
             td.classList.add('jexcel_dropdown');
+            if (obj.options.columns[i].displayShortName) {
+                td.classList.add('jexcel_dropdown_shortname');
+            }
             td.innerHTML = obj.getDropDownValue(i, value);
         } else if (obj.options.columns[i].type == 'color') {
             if (obj.options.columns[i].render == 'square') {
@@ -1751,6 +1754,9 @@ var jexcel = (function(el, options) {
                 td.appendChild(img);
             }
         } else {
+            if (obj.options.columns[i].displayShortName) {
+                td.classList.add('jexcel_dropdown_shortname');
+            }
             if ((''+value).substr(0,1) == '=' && obj.options.parseFormulas == true) {
                 value = obj.executeFormula(value, i, j)
             }
