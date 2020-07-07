@@ -1095,7 +1095,7 @@ var jexcel = (function(el, options) {
         }
     }
 
-    obj.setCellError = function(title, x, y, rules, valid, isError) {
+    obj.setCellError = function(title, x, y, rules, valid, isError, error) {
         var columnName = jexcel.getColumnNameFromId([ x, y ]);
         var record = obj.records[y][x];
 
@@ -1129,7 +1129,11 @@ var jexcel = (function(el, options) {
                 rule.maxLength = rules.maxLength;
             }
 
-            obj.setComments(columnName, text(title, rule));
+            if (error) {
+                obj.setComments(columnName, error);
+            } else {
+                obj.setComments(columnName, text(title, rule));
+            }
         } else {
             record.classList.remove('jexcel_cell_error');
             record.classList.remove('jexcel_cell_warning');
@@ -1417,6 +1421,8 @@ var jexcel = (function(el, options) {
     }
 
     obj.validLessThanNow = function(value) {
+        if (!value) return true;
+
         var dates = value.split('/');
         var current = obj.getDateNow();
 
@@ -1434,10 +1440,12 @@ var jexcel = (function(el, options) {
             return date.getTime() <= current.getTime();
         }
 
-        return false;
+        return true;
     }
 
     obj.validGreaterThanNow = function(value) {
+        if (!value) return true;
+
         var dates = value.split('/');
         var current = obj.getDateNow();
 
@@ -1455,7 +1463,7 @@ var jexcel = (function(el, options) {
             return date.getTime() >= current.getTime();
         }
 
-        return false;
+        return true;
     }
 
     obj.validOnlyCharacterNumber = function(value) {
@@ -1843,6 +1851,9 @@ var jexcel = (function(el, options) {
             if (! nestedInformation[i].title) {
                 nestedInformation[i].title = '';
             }
+            if (!nestedInformation[i].subtitle) {
+                nestedInformation[i].subtitle = '';
+            }
             if (! nestedInformation[i].rowspan) {
                 nestedInformation[i].rowspan = 1;
             }
@@ -1868,6 +1879,11 @@ var jexcel = (function(el, options) {
             td.setAttribute('align', nestedInformation[i].align);
             td.setAttribute('rowspan', nestedInformation[i].rowspan);
             td.innerHTML = nestedInformation[i].title;
+
+            console.log(nestedInformation[i])
+            if (nestedInformation[i].subtitle) {
+                td.innerHTML = nestedInformation[i].title + ` <span class="jexcel-header-subtitle">(${nestedInformation[i].subtitle})</span>`;
+            }
 
             tr.appendChild(td);
         }

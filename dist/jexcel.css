@@ -760,3 +760,8 @@ table.jexcel > tbody > tr > td.jexcel_cell_warning {
 .jexcel > tbody > tr > td.jexcel_comments.jexcel_cell_warning {
     background-color: rgb(255, 210, 0) !important;
 }
+.jexcel td span.jexcel-header-subtitle {
+    font-size: 12px;
+    display: block;
+    font-style: italic;
+}
