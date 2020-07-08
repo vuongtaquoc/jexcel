@@ -1856,7 +1856,6 @@ var jexcel = (function(el, options) {
             td.setAttribute('rowspan', nestedInformation[i].rowspan);
             td.innerHTML = nestedInformation[i].title;
 
-            console.log(nestedInformation[i])
             if (nestedInformation[i].subtitle) {
                 td.innerHTML = nestedInformation[i].title + ` <span class="jexcel-header-subtitle">(${nestedInformation[i].subtitle})</span>`;
             }
