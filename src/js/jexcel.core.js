@@ -4,7 +4,8 @@ var jexcel = (function(el, options) {
     // Create jexcel object
     var obj = {
         invalid: {},
-        invalidDuplicate: {}
+        invalidDuplicate: {},
+        warning: {}
     };
     obj.options = {};
 
@@ -829,6 +830,8 @@ var jexcel = (function(el, options) {
 
         // validation
         obj.invalid = {};
+        obj.warning = {};
+        obj.warningAllCells();
         obj.validationAllCells();
         obj.validationDuplicate();
     }
@@ -859,6 +862,120 @@ var jexcel = (function(el, options) {
         });
 
         return errors;
+    }
+
+    obj.warningAllCells = function() {
+        var masterKeyIndex = obj.options.columns.findIndex(c => !!c.isMasterKey);
+
+        for (var y = 0; y < obj.options.data.length; y++) {
+            var row = obj.options.data[y];
+
+            if (row.options && (row.options.isParent || row.options.formula || row.options.isInitialize)) {
+                continue;
+            }
+
+            var masterKeyData = masterKeyIndex > -1 ? row[masterKeyIndex] : null;
+
+            if (!masterKeyData && masterKeyIndex > -1) {
+                obj.clearWarningRow(y, obj.options.columns.length);
+                continue;
+            }
+
+            for (var x = 0; x < obj.options.columns.length; x++) {
+                var column = obj.options.columns[x];
+                var data = row[x];
+
+                var record = obj.records[y][x];
+
+                if (record.classList.contains('readonly')) {
+                    continue;
+                }
+
+                obj.checkWarning(column.fieldName || column.title, column.warnings, data, x, y);
+            }
+        }
+    }
+
+    obj.warningRow = function(y) {
+        var row = obj.options.data[y];
+
+        for (var x = 0; x < obj.options.columns.length; x++) {
+            var column = obj.options.columns[x];
+            var data = row[x];
+            var record = obj.records[y][x];
+
+            if (record.classList.contains('readonly')) {
+                continue;
+            }
+
+            obj.checkWarning(column.fieldName || column.title, column.warnings, data, x, y);
+        }
+    }
+
+    obj.clearWarning = function(y, x) {
+        var columnName = jexcel.getColumnNameFromId([ x, y ]);
+
+        obj.records[y][x].classList.remove('jexcel_cell_warning');
+        obj.setComments(columnName, '');
+
+        delete obj.invalid[`${y}_${x}`];
+    }
+
+    obj.clearWarningRow = function(y, xNumbers) {
+        for (var x = 0; x < xNumbers; x++) {
+            obj.clearWarning(y, x);
+        }
+    }
+
+    obj.checkWarning = function(title, rules, data, x, y) {
+        rules = rules || {};
+        var valid = {};
+
+        if (rules.duplicateUserFields) {
+            valid.duplicateUserFields = obj.validDuplicateUserFields(data, obj.options.data[y], rules.duplicateUserFields);
+
+            obj.options.ondifference && obj.options.ondifference(!valid.duplicateUserFields, data, obj.options.data[y], rules.duplicateUserFields);
+        }
+
+        // check valid
+        if (Object.values(valid).indexOf(false) > -1) {
+            obj.setCellWarning(title, x, y, rules, valid, true);
+        } else {
+            obj.setCellWarning(title, x, y, rules, valid, false);
+        }
+    }
+
+    obj.setCellWarning = function(title, x, y, rules, valid, isError) {
+        var columnName = jexcel.getColumnNameFromId([ x, y ]);
+        var record = obj.records[y][x];
+
+        if (obj.invalid[`${y}_${x}`]) {
+            record.classList.remove('jexcel_cell_warning');
+            // obj.setComments(columnName, '');
+
+            delete obj.warning[`${y}_${x}`];
+            return;
+        }
+
+        if (isError) {
+            if (rules.duplicateUserFields && !valid.duplicateUserFields) {
+                record.classList.add('jexcel_cell_warning');
+            }
+
+            obj.warning[`${y}_${x}`] = true;
+
+            var invalidIndex = Object.values(valid).indexOf(false);
+            var errorType = Object.keys(valid)[invalidIndex];
+            var text = obj.options.text.validation[errorType] || function() {};
+            var rule = rules[errorType] ? { [errorType]: rules[errorType] } : {};
+
+            obj.setComments(columnName, text(title, rule));
+        } else {
+            record.classList.remove('jexcel_cell_warning');
+            obj.setComments(columnName, '');
+
+            delete obj.warning[`${y}_${x}`];
+        }
     }
 
     obj.validationAllCells = function() {
@@ -2911,8 +3028,10 @@ var jexcel = (function(el, options) {
             if (masterKeyData) {
                 // obj.validation(column.fieldName || column.title, column.validations, value, x, y);
                 obj.validationRow(y);
+                obj.warningRow(y);
             } else {
                 obj.clearValidationRow(y, obj.options.columns.length);
+                obj.clearWarningRow(y, obj.options.columns.length);
             }
             obj.validationDuplicate();
         }
