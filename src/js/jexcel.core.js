@@ -1444,6 +1444,10 @@ var jexcel = (function(el, options) {
     }
 
     obj.validMinNumber = function(value, min) {
+        if (value === '' || value === null || typeof value === 'undefined') {
+            return true;
+        }
+
         if (!obj.validNumber(value)) {
             return false;
         }
@@ -1454,6 +1458,10 @@ var jexcel = (function(el, options) {
     }
 
     obj.validMaxNumber = function(value, max) {
+        if (value === '' || value === null || typeof value === 'undefined') {
+            return true;
+        }
+
         if (!obj.validNumber(value)) {
             return false;
         }
@@ -1464,6 +1472,10 @@ var jexcel = (function(el, options) {
     }
 
     obj.validMinMaxNumber = function(value, min, max) {
+        if (value === '' || value === null || typeof value === 'undefined') {
+            return true;
+        }
+
         if (!obj.validNumber(value)) {
             return false;
         }
