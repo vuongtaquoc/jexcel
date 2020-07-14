@@ -1083,7 +1083,7 @@ var jexcel = (function(el, options) {
         var valid = {};
 
         if (rules.required) {
-            valid.required = obj.validRequired(data);
+            valid.required = obj.validRequired(data, x, y);
         }
 
         if (rules.number) {
@@ -1310,7 +1310,14 @@ var jexcel = (function(el, options) {
         });
     }
 
-    obj.validRequired = function(value) {
+    obj.validRequired = function(value, x, y) {
+        var data = obj.options.data[y];
+        var column = obj.options.columns[x];
+
+        if (column.ignoreRequiredRow) {
+            return column.ignoreRequiredRow.indexOf(data.options.parentKey) > -1;
+        }
+
         if (value === '' || typeof value === 'undefined' || value === null) {
             return false;
         }
@@ -1977,12 +1984,16 @@ var jexcel = (function(el, options) {
                 headerIndex++;
             }
 
+            const quote = nestedInformation[i].quote || nestedInformation[i].title || '';
+
             // Created the nested cell
             var td = document.createElement('td');
             td.setAttribute('data-column', column.join(','));
             td.setAttribute('colspan', nestedInformation[i].colspan);
             td.setAttribute('align', nestedInformation[i].align);
             td.setAttribute('rowspan', nestedInformation[i].rowspan);
+            td.setAttribute('title', quote);
+
             td.innerHTML = nestedInformation[i].title;
 
             if (nestedInformation[i].subtitle) {
