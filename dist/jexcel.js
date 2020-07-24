@@ -7784,6 +7784,10 @@ jexcel.keyDownControls = function(e) {
                 } else {
                     jexcel.current.edition[0].children[0].blur();
                 }
+
+                if (jexcel.current.edition) {
+                    jexcel.current.closeEditor(jexcel.current.edition[0], false);
+                }
             }
         }
 
