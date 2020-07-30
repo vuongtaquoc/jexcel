@@ -2618,6 +2618,7 @@ var jexcel = (function(el, options) {
             if (obj.options.data[y][x] == value) {
                 cell.innerHTML = obj.edition[1];
             } else {
+                value = value ? value.trim() : '';
                 obj.setValue(cell, value);
             }
         } else {
@@ -7762,7 +7763,7 @@ jexcel.keyDownControls = function(e) {
                 }
 
                 if (jexcel.current.edition) {
-                    jexcel.current.closeEditor(jexcel.current.edition[0], false);
+                    jexcel.current.closeEditor(jexcel.current.edition[0], true);
                 }
             }
         }
