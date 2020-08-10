@@ -2549,12 +2549,12 @@ var jexcel = (function(el, options) {
                 result.then(function(source) {
                     var s = source.find(d => d.id == value);
 
-                    cell.innerHTML = s ? s.name : '';
+                    cell.innerHTML = s ? (s.shortName || s.name) : '';
                 });
             } else {
                 var s = result.find(d => d.id == value);
 
-                cell.innerHTML = s ? s.name : '';
+                cell.innerHTML = s ? (s.shortName || s.name) : '';
             }
         }
     }
