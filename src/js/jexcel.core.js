@@ -846,7 +846,15 @@ var jexcel = (function(el, options) {
     }
 
     obj.getTableErrors = function() {
-        var errors = Object.keys(obj.invalid).map(key => {
+        var invalids = { ...obj.invalid };
+
+        Object.keys(obj.invalidDuplicate).forEach(key => {
+            if (!!obj.invalidDuplicate[key] && !invalids[key]) {
+                invalids[key] = !!obj.invalidDuplicate[key];
+            }
+        });
+
+        var errors = Object.keys(invalids).map(key => {
             const [ row, col ] = key.split('_');
             return {
                 y: Number(row) + 1,
