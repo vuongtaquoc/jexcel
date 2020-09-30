@@ -1322,8 +1322,8 @@ var jexcel = (function(el, options) {
         var data = obj.options.data[y];
         var column = obj.options.columns[x];
 
-        if (column.ignoreRequiredRow) {
-            return column.ignoreRequiredRow.indexOf(data.options.parentKey) > -1;
+        if (column.ignoreRequiredRow && column.ignoreRequiredRow.indexOf(data.options.parentKey) > -1) {
+            return true;
         }
 
         if (value === '' || typeof value === 'undefined' || value === null) {
