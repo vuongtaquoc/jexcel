@@ -4710,6 +4710,16 @@ var jexcel = (function(el, options) {
                     // Remove table references
                     obj.updateTableReferences();
 
+                    // Delete table invalid error
+                    var columnCount = obj.options.columns.length;
+
+                    for (var r = 0; r < numOfRows; r++) {
+                        for (var c = 0; c < columnCount; c++) {
+                            delete obj.invalidDuplicate[`${r + rowNumber}_${c}`];
+                            delete obj.invalid[`${r + rowNumber}_${c}`];
+                        }
+                    }
+
                     // Events
                     if (obj.ignoreEvents != true) {
                         if (typeof(obj.options.ondeleterow) == 'function') {
